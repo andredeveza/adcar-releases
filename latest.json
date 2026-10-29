@@ -1,0 +1,15 @@
+{
+  "versionCode": 4,
+  "versionName": "2.0.0",
+  "apk": "AD-Car-2.0.0.apk",
+  "sha256": "1bdc930779d92dc11ab65a4b9708d6c409648f852124917e3f0b67e7fe28d554",
+  "size": "397 KB",
+  "date": "29/10/2026",
+  "notes": "AD Car 2.0: tela nova.\n• Layouts de 2, 3 e 4 divisões, Mapa + 2 e Mapa cheio, com editor de widgets.\n• Widgets: mapa, velocímetro, mídia com capa, motor (OBD2), viagem, relógio e clima, atalhos, bússola e altitude.\n• Mapa com rota e próxima curva: BRouter sem internet, ou pela internet.\n• Mídia em tela cheia: capa, fila, avançar na faixa, fontes.\n• Temas escuro, claro e dia/noite, 12 cores premium e 3 fundos.\n• Buscar atualizações dentro do app.",
+  "ponte": {
+    "versionCode": 1,
+    "versionName": "1.0.0",
+    "apk": "AD-Car-Ponte.apk",
+    "sha256": "b55f3d8e727eac1965f229971509c6c9ff28aa997239d94fea14b1211bb2dd2a"
+  }
+}
