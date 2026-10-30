@@ -1,0 +1,39 @@
+name: Publish AD Car Aura 2.4.1
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-aura-2.4.1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify compiled signed APK
+        env:
+          ARTIFACT_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-ced8-820e-ba3a-f350a2b9a1a5/raw?se=2026-10-30T17%3A10%3A48Z&sp=r&sv=2026-02-06&sr=b&scid=932fbae8-b073-5f9b-b05d-da54ce686753&skoid=0a91ee30-885e-46c5-aa98-ae8c7359b1d8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T12%3A53%3A37Z&ske=2026-10-31T12%3A53%3A37Z&sks=b&skv=2026-02-06&sig=IG5%2BMRI3sGvGBnCoHSlyBrr672KbJkuLXKWoRVy79Ow%3D'
+        run: |
+          curl -fLsS --retry 3 "$ARTIFACT_URL" -o artifact.zip
+          unzip -q artifact.zip app-debug.apk
+          echo '73aaf8e148da6880d02e981c2cdadb5ff71c71d485cfca995624a8bf26396a92  app-debug.apk' | sha256sum -c -
+          mv app-debug.apk AD-Car-Aura-2.4.1.apk
+      - name: Update manifest
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,pathlib
+          file=pathlib.Path('AD-Car-Aura-2.4.1.apk')
+          manifest={
+            "versionCode":10,"versionName":"2.4.1",
+            "packageName":"br.com.adcomintegrada.adcar.aura",
+            "apk":file.name,"sha256":hashlib.sha256(file.read_bytes()).hexdigest(),
+            "sizeBytes":file.stat().st_size,"date":"2026-10-30",
+            "notes":"AD Car Aura 2.4.1: corrige Download não iniciado / WRITE_EXTERNAL_STORAGE na central Android 8.1. Agora usa a pasta exclusiva do app com URI de leitura para o instalador, sem exigir gravação em Downloads. Mantém ajuste de margem superior do Aura 2.4.0 e demais recursos 2.3.0. Para sair de 2.3.0 ou 2.4.0 cujo atualizador apresenta erro, instale manualmente esta versão uma vez."
+          }
+          pathlib.Path('aura-latest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+          git config user.name 'adcar-release-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AD-Car-Aura-2.4.1.apk aura-latest.json
+          git diff --staged --quiet || (git commit -m 'Release Aura 2.4.1 Android 8 OTA storage fix' && git push)
