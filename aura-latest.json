@@ -1,10 +1,10 @@
 {
-  "versionCode": 13,
-  "versionName": "2.5.2",
+  "versionCode": 14,
+  "versionName": "2.6.0",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.5.2.apk",
-  "sha256": "733e663b469ba34986601ca34c884d4fde428fcd6b70a0d6e5da33ff99574689",
-  "sizeBytes": 1485349,
+  "apk": "AD-Car-Aura-2.6.0.apk",
+  "sha256": "e22b19989565ceeec2ec2cc0acf884041d3282b5f5c6ba83349d7f65b4e51a68",
+  "sizeBytes": 1488485,
   "date": "2026-10-30",
-  "notes": "AD Car Aura 2.5.2: nova detecção do aplicativo de rádio FM nativo da central Android (FYT, TopWay, Android e outros). Em Mídia, toque em Detectar, selecione um dos aplicativos encontrados e depois Abrir rádio. É possível informar o pacote manualmente se o rádio não for reconhecido. A recepção FM utiliza o hardware original da central. Controle interno de frequência, estação e RDS depende de API fornecida pelo firmware. Mantém o layout responsivo, mapa, mídia, GPS, Ponte/OBD2 e atualizações da 2.5.1."
+  "notes": "AD Car Aura 2.6.0: MODO FOCO. Em Mapa, Mídia e OBD2 as explicações deixam de ocupar metade da tela; painéis de configurações passam a ser recolhíveis. Mapa em tela ampla, seis métricas OBD2 ampliadas, reprodutor de mídia expandido, atalhos de Som e Rádio FM, Tela cheia com botão de saída. Preserva os ajustes de compatibilidade da central, as permissões e o atualizador da versão 2.5.2. As integrações externas exigem hardware, aplicativos e mapas configurados."
 }
