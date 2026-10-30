@@ -1,0 +1,39 @@
+name: Publicar AD Car Aura 2.5.2 FM
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-aura-2.5.2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Transferir e validar APK compilado
+        env:
+          ARTIFACT_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-4d14-820e-acf9-0e19d6916c0d/raw?se=2026-10-30T20%3A56%3A58Z&sp=r&sv=2026-02-06&sr=b&scid=ec158a2c-bf41-5801-b225-607c8dd0d104&skoid=0a91ee30-885e-46c5-aa98-ae8c7359b1d8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T12%3A05%3A22Z&ske=2026-10-31T12%3A05%3A22Z&sks=b&skv=2026-02-06&sig=0VwnM8KrtcA7KTiXCMGnrU6zRtAxmssuAzUEqtRV1/w%3D'
+        run: |
+          curl -fLsS --retry 3 "$ARTIFACT_URL" -o artifact.zip
+          unzip -q artifact.zip app-debug.apk
+          echo '733e663b469ba34986601ca34c884d4fde428fcd6b70a0d6e5da33ff99574689  app-debug.apk' | sha256sum -c -
+          mv app-debug.apk AD-Car-Aura-2.5.2.apk
+      - name: Publicar pacote e índice de atualização
+        run: |
+          python3 - <<'PY'
+          import pathlib,hashlib,json
+          f=pathlib.Path('AD-Car-Aura-2.5.2.apk')
+          data={
+             "versionCode":13,"versionName":"2.5.2",
+             "packageName":"br.com.adcomintegrada.adcar.aura",
+             "apk":f.name,"sha256":hashlib.sha256(f.read_bytes()).hexdigest(),
+             "sizeBytes":f.stat().st_size,"date":"2026-10-30",
+             "notes":"AD Car Aura 2.5.2: nova detecção do aplicativo de rádio FM nativo da central Android (FYT, TopWay, Android e outros). Em Mídia, toque em Detectar, selecione um dos aplicativos encontrados e depois Abrir rádio. É possível informar o pacote manualmente se o rádio não for reconhecido. A recepção FM utiliza o hardware original da central. Controle interno de frequência, estação e RDS depende de API fornecida pelo firmware. Mantém o layout responsivo, mapa, mídia, GPS, Ponte/OBD2 e atualizações da 2.5.1."
+          }
+          pathlib.Path('aura-latest.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+          git config user.name 'adcar-release-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AD-Car-Aura-2.5.2.apk aura-latest.json
+          git diff --staged --quiet || (git commit -m 'Publicar Aura 2.5.2: reconhecimento do rádio FM nativo' && git push)
