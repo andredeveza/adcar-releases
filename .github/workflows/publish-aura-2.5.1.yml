@@ -1,0 +1,33 @@
+name: Publish AD Car Aura 2.5.1
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-aura-2.5.1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify signed build
+        env:
+          ARTIFACT_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-b478-820e-bac3-0c3b1a52edda/raw?se=2026-10-30T20%3A39%3A49Z&sp=r&sv=2026-02-06&sr=b&scid=352d9541-aac1-5eb6-8f56-d7dfa333197f&skoid=0a91ee30-885e-46c5-aa98-ae8c7359b1d8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-30T12%3A53%3A35Z&ske=2026-10-31T12%3A53%3A35Z&sks=b&skv=2026-02-06&sig=FjxRHD3882Jx2teheX737FedhdRDYLb4kY83/n6hDY0%3D'
+        run: |
+          curl -fLsS --retry 3 "$ARTIFACT_URL" -o artifact.zip
+          unzip -q artifact.zip app-debug.apk
+          echo '998754891266b50ebf4dd5db7edb7c4dc0451e4feafa750c0b1392f1028c5907  app-debug.apk' | sha256sum -c -
+          mv app-debug.apk AD-Car-Aura-2.5.1.apk
+      - name: Publish APK and latest manifest
+        run: |
+          python3 - <<'PY'
+          import pathlib,json,hashlib
+          f=pathlib.Path('AD-Car-Aura-2.5.1.apk')
+          data={"versionCode":12,"versionName":"2.5.1","packageName":"br.com.adcomintegrada.adcar.aura","apk":f.name,"sha256":hashlib.sha256(f.read_bytes()).hexdigest(),"sizeBytes":f.stat().st_size,"date":"2026-10-30","notes":"Aura 2.5.1: remove 56px de margem automática duplicada do cabeçalho da central, oferece Editor > Faixa livre para ajuste manual, refaz a tela de atualização com etapas de consulta, download e instalação, preserva estado durante atualizações de GPS e mídia, exibe progresso e erros, salva APK em pasta privada, valida checksum e identidade do pacote, abre instalador via FileProvider e fornece link alternativo pelo navegador. Necessário instalar manualmente uma vez se a versão 2.5.0 não baixar corretamente."}
+          pathlib.Path('aura-latest.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+          git config user.name 'adcar-release-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AD-Car-Aura-2.5.1.apk aura-latest.json
+          git diff --staged --quiet || (git commit -m 'Publish Aura 2.5.1: safe header and reliable updater' && git push)
