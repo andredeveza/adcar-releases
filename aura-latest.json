@@ -1,10 +1,10 @@
 {
-  "versionCode": 10,
-  "versionName": "2.4.1",
+  "versionCode": 11,
+  "versionName": "2.5.0",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.4.1.apk",
-  "sha256": "73aaf8e148da6880d02e981c2cdadb5ff71c71d485cfca995624a8bf26396a92",
-  "sizeBytes": 78476,
+  "apk": "AD-Car-Aura-2.5.0.apk",
+  "sha256": "c98d209301e79f7527b7e1dbbd7709616b8215645a5a93e99b0d95eaf2ab8d8c",
+  "sizeBytes": 83992,
   "date": "2026-10-30",
-  "notes": "AD Car Aura 2.4.1: corrige Download não iniciado / WRITE_EXTERNAL_STORAGE na central Android 8.1. Agora usa a pasta exclusiva do app com URI de leitura para o instalador, sem exigir gravação em Downloads. Mantém ajuste de margem superior do Aura 2.4.0 e demais recursos 2.3.0. Para sair de 2.3.0 ou 2.4.0 cujo atualizador apresenta erro, instale manualmente esta versão uma vez."
+  "notes": "AD Car Aura 2.5.0: nova interface automotiva responsiva inspirada em princípios de ergonomia de Android Auto e CarPlay. Modo Compacto, Conforto ou Extra Grande; botões 48–62 px, fontes maiores, player e painel reformulados, navegação e editor com rolagem para evitar cortes. Mantém controle da área superior OEM, mídia, GPS, BRouter/OBD2 condicionais à configuração. Instalação confirmada no Android."
 }
