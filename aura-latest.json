@@ -1,0 +1,10 @@
+{
+  "versionCode": 7,
+  "versionName": "2.2.0",
+  "packageName": "br.com.adcomintegrada.adcar.aura",
+  "apk": "AD-Car-Aura-2.2.0.apk",
+  "sha256": "896afbeb0ac9a0910b38be10da108590853d8ba60ad4c70f31b1a2ce80400127",
+  "sizeBytes": 1261437,
+  "date": "2026-10-29",
+  "notes": "AD Car Aura 2.2.0 — escala dos cartões e ícones aplicada ao dashboard; mapa online OSM/MapTiler; importação MBTiles raster; integração com BRouter/ELM327 Bluetooth; cache dos logotipos e atualização pelo próprio aplicativo. Mapas offline e BRouter precisam ser configurados no aparelho."
+}
