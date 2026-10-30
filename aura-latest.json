@@ -1,10 +1,10 @@
 {
-  "versionCode": 8,
-  "versionName": "2.3.0",
+  "versionCode": 9,
+  "versionName": "2.4.0",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.3.0.apk",
-  "sha256": "e3d9e3c06405dd992a148cd3329c4d7228ca97c33a760e101d5b95a80e95b4c4",
-  "sizeBytes": 77104,
+  "apk": "AD-Car-Aura-2.4.0.apk",
+  "sha256": "694e770185e90bf2b4084492a42c29708cab52d0ca2af29bce8a1a9327e6de95",
+  "sizeBytes": 78232,
   "date": "2026-10-30",
-  "notes": "AD Car Aura 2.3.0: capas de álbum obtidas via Android MediaSession, fonte ampliável até 165%, player grande, volume circular horário/anti-horário e barra gradual com volume real do Android. Mapa online OpenStreetMap/MapTiler, MBTiles raster, BRouter e OBD2 continuam exigindo permissões/configuração. Acesso às notificações é necessário para ler metadados."
+  "notes": "AD Car Aura 2.4.0: corrige sobreposição entre o cabeçalho do aplicativo e os botões do sistema na central Android 8.1. Respeita barras de navegação e adiciona Editor > Faixa livre acima do Aura, ajuste automático para centrais Android 8.1, controles de 0, 56, 80 e até 120 px, salvamento da configuração. Mantém mídia, GPS, mapas e OBD2 da 2.3.0."
 }
