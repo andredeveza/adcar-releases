@@ -1,0 +1,22 @@
+name: Validar prévia web Aura
+on:
+  push:
+    paths:
+      - 'web/**'
+      - '.github/workflows/validate-aura-web.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/validate-aura-web.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar HTML e sintaxe de JavaScript
+        run: node web/validate.cjs
