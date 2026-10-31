@@ -1,0 +1,989 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e13"><title>AD Car Aura 2.8.1 · Arquivo único</title>
+<style>.mini-map-tiles,.mini-map-objects,.mini-map-labels{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.mini-map-tiles{background-color:#0e1b27;background-image:linear-gradient(0deg,transparent 95%,rgba(255,255,255,.06) 100%),linear-gradient(90deg,transparent 95%,rgba(255,255,255,.06) 100%);background-size:64px 64px}
+.mini-map-tile{position:absolute;width:256px;height:256px;max-width:none;user-select:none}
+.mini-map-objects{z-index:2}
+.mini-map-marker{position:absolute;z-index:3;pointer-events:none}
+.mini-map-circle{border-radius:50%;transform:translate(-50%,-50%)}
+.mini-map-vector{position:absolute;top:0;left:0;overflow:hidden}
+.mini-map-labels{z-index:5}
+.mini-map-mark{position:absolute;bottom:10px;left:10px;color:#a1abb8;font-size:10px;background:rgba(0,0,0,.5);padding:3px 6px;border-radius:5px}
+.mini-map-credit{position:absolute;bottom:10px;right:10px;color:#a1abb8;font-size:10px;background:rgba(0,0,0,.5);padding:3px 6px;border-radius:5px}
+
+/* AD Car Aura 2.8 · "Aura In-Cabin OS" colors (Stitch) at car scale:
+   Android Auto / CarPlay sizing — touch targets >= 76 px, primary icons 44 px, secondary 36 px,
+   left app rail like AA "Coolwalk"/CarPlay Dashboard, map-first split screens, no custom header (Android status bar stays).
+   Old Android WebView safe: no flex gap, no inset, no :has, no min()/max()/clamp(). */
+:root{
+ --bg:#0b0e13;--c-low:#14171c;--c:#1b1e23;--c-high:#262a30;--c-highest:#31353b;--c-bright:#3a3e45;
+ --on:#eef0f4;--on-var:#b4bfc3;--outline:#7f8b8e;
+ --accent:#00e5ff;--on-accent:#00363d;--accent-soft:rgba(0,229,255,.16);
+ --amber:#fa9b00;--amber-soft:#ffc07a;--green:#52ec6f;--error-c:#93000a;
+ --rim:rgba(255,255,255,.07);--t:76px;--rail:96px;--gap:12px;--r:22px;--safe-top:0px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;height:100%}
+body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--on);font-family:Roboto,"Segoe UI",Arial,system-ui,sans-serif;font-weight:600;-webkit-user-select:none;user-select:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+input,select{background:var(--c-high);border:2px solid transparent;border-radius:16px;padding:0 1.1rem;height:var(--t);font-size:1.25rem;min-width:0;outline:none;-webkit-user-select:text;user-select:text}
+input:focus,select:focus{border-color:var(--accent)}
+.num{font-family:Roboto,Arial,sans-serif;font-weight:700;letter-spacing:-.02em}
+.lbl{font-size:1rem;font-weight:700;letter-spacing:.04em;color:var(--on-var)}
+.muted{color:var(--on-var)}
+.small{font-size:1.05rem}
+svg.i{width:var(--ico,36px);height:var(--ico,36px);flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+svg.i.f{fill:currentColor;stroke:none}
+.grow{flex:1;min-width:0}
+.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{display:flex;align-items:center}
+.row>*+*{margin-left:12px}
+
+/* Shell: rail + content. The Android status bar above is never covered. */
+#app{position:absolute;left:0;right:0;bottom:0;top:var(--safe-top);display:flex}
+#rail{width:var(--rail);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:10px 0;background:#06080b}
+#rail .apps{display:flex;flex-direction:column;align-items:center}
+.rb{width:var(--t);height:var(--t);border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--on-var);margin:3px 0}
+.rb svg.i{width:var(--ico,40px);height:var(--ico,40px)}
+.rb.on{background:var(--accent);color:var(--on-accent)}
+.rb:active{background:var(--c-bright)}
+.rail-status{display:flex;flex-direction:column;align-items:center}
+.sdot{width:12px;height:12px;border-radius:50%;background:var(--outline);margin:5px 0}
+.sdot.ok{background:var(--green)}.sdot.warn{background:var(--amber)}
+#view{flex:1;min-width:0;position:relative;padding:var(--gap)}
+body.full #rail{display:none}
+#exitFull{display:none;position:absolute;right:16px;top:16px;z-index:900;height:var(--t);padding:0 24px;border-radius:24px;background:rgba(11,14,19,.94);border:1px solid rgba(255,255,255,.14);align-items:center;font-weight:700;font-size:1.2rem}
+#exitFull svg{margin-right:10px}
+body.full #exitFull{display:flex}
+#toast{position:absolute;left:50%;bottom:24px;-webkit-transform:translateX(-50%);transform:translateX(-50%);max-width:80%;background:#2a2f38;border:1px solid rgba(255,255,255,.14);box-shadow:0 12px 32px rgba(0,0,0,.55);padding:18px 26px;border-radius:20px;font-size:1.2rem;display:none;z-index:1000}
+.demo-flag{position:absolute;left:50%;top:6px;-webkit-transform:translateX(-50%);transform:translateX(-50%);z-index:950;background:#3a2a00;color:#ffd08a;font-size:.85rem;font-weight:700;letter-spacing:.06em;padding:4px 14px;border-radius:12px;pointer-events:none}
+
+/* Buttons */
+.btn{height:var(--t);min-width:var(--t);padding:0 24px;border-radius:22px;background:var(--c-high);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;white-space:nowrap}
+.btn svg{margin-right:10px}
+.btn.icon{padding:0;width:var(--t)}.btn.icon svg{margin:0}
+.btn.pri{background:var(--accent);color:var(--on-accent)}
+.btn.danger{background:var(--error-c);color:#ffdad6}
+.btn:active{-webkit-filter:brightness(1.3);filter:brightness(1.3)}
+.btn[disabled]{opacity:.35}
+
+/* Cards: one job, few big things */
+.card{background:var(--c);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;min-width:0;min-height:0}
+.card-h{display:flex;align-items:center;min-height:44px;margin-bottom:6px}
+.card-h .lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-h .open{width:var(--t);height:56px;margin:-10px -10px -10px 0;border-radius:18px;display:flex;align-items:center;justify-content:center;color:var(--on-var)}
+.card-h .open svg{width:32px;height:32px}
+.tag{font-size:.95rem;font-weight:700;padding:6px 14px;border-radius:14px;background:var(--c-high);color:var(--on-var);white-space:nowrap}
+.tag.ok{color:var(--green)}.tag.warn{color:var(--amber-soft)}.tag.acc{color:var(--accent)}
+
+/* Home: map-first splits */
+.home{height:100%;display:grid;grid-gap:var(--gap)}
+.home.lm2{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+.home.lm2>:first-child{grid-row:1 / span 2}
+.home.l2{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.home.l3{grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.home.l4{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr)}
+
+/* Speed */
+.speed{display:flex;flex-direction:column}
+.speed .big{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:0}
+.speed .big .num{font-size:5.5rem;line-height:.95}
+.speed .big .u{font-size:1.1rem;font-weight:700;letter-spacing:.14em;color:var(--accent);margin-top:4px}
+.pair{display:flex}
+.pair>div{flex:1;min-width:0;background:var(--c-low);border-radius:16px;padding:10px 14px}
+.pair>div+div{margin-left:10px}
+.pair .num{font-size:1.9rem;line-height:1.1}
+.pair small{font-size:1rem;color:var(--on-var);margin-left:4px;font-weight:600}
+.pair .lbl{display:block;font-size:.9rem}
+
+/* Media card */
+.media{display:flex;flex-direction:column}
+.mrow{display:flex;align-items:center;min-height:0;flex:1}
+.art{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#123c45,#25183a);flex:none}
+.art img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;display:none}
+.art .ph{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55)}
+.art .ph svg{width:44px;height:44px}
+.mrow .art{width:96px;height:96px;margin-right:16px}
+.media .t{font-family:Roboto,Arial,sans-serif;font-weight:700;font-size:1.6rem;line-height:1.2}
+.media .a{font-size:1.15rem;color:var(--on-var);margin-top:2px}
+.prog{height:6px;border-radius:3px;background:var(--c-highest);overflow:hidden;margin-top:12px}
+.prog b{display:block;height:100%;width:0;background:var(--accent)}
+.ctrls{display:flex;align-items:center;justify-content:space-around;margin-top:10px}
+.play{width:88px;height:88px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;flex:none}
+.play svg.i{width:44px;height:44px}
+.media.tall .mrow{flex-direction:column;align-items:stretch;justify-content:flex-start}
+.media.tall .mrow .art{width:100%;height:auto;flex:1;min-height:96px;max-height:260px;margin:0 0 14px}
+
+/* Generic big-value cards */
+.vals{display:flex;flex:1;align-items:center}
+.vals>div{flex:1;min-width:0}
+.vals .num{font-size:3rem;line-height:1}
+.vals small{font-size:1.1rem;color:var(--on-var);margin-left:4px}
+.vals .lbl{display:block;margin-bottom:6px}
+.col{display:flex;flex-direction:column}
+.src{font-size:.95rem;color:var(--outline);margin-top:8px}
+.shortcuts{display:grid;grid-template-columns:1fr 1fr;grid-gap:10px;flex:1}
+.shortcuts .btn{height:auto;min-height:var(--t);flex-direction:column;font-size:1.05rem;padding:8px}
+.shortcuts .btn svg{margin:0 0 6px}
+
+/* Map */
+.mapcard{padding:0}
+.leaf{position:absolute;left:0;top:0;right:0;bottom:0;background:#0d1a20}
+.leaflet-container{background:#0d1a20;font:inherit}
+.dark-tiles .leaflet-tile-pane{-webkit-filter:invert(1) hue-rotate(185deg) brightness(.82) contrast(.92) saturate(.55);filter:invert(1) hue-rotate(185deg) brightness(.82) contrast(.92) saturate(.55)}
+.leaflet-control-attribution{background:rgba(11,14,19,.7)!important;color:#8e95a5!important;font-size:10px!important}
+.leaflet-control-attribution a{color:#8e95a5!important}
+.ov{position:absolute;z-index:500}
+.ov-tl{left:14px;top:14px;right:calc(var(--t) + 28px)}
+.ov-r{right:14px;top:14px;display:flex;flex-direction:column}
+.ov-r .btn{margin-bottom:10px;background:rgba(27,30,35,.95);box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.ov-r .btn.pri{background:var(--accent)}
+.ov-b{left:14px;right:calc(var(--t) + 28px);bottom:14px}
+.glass{background:rgba(20,23,28,.96);border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.turn{display:flex;align-items:center;padding:12px 16px;max-width:30rem}
+.turn .ic{width:72px;height:72px;border-radius:18px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;flex:none;margin-right:16px}
+.turn .ic svg{width:48px;height:48px}
+.turn .num{font-size:2.3rem;line-height:1}
+.turn small{display:block;font-size:1.15rem;color:var(--on-var);margin-top:4px}
+.searchbar{display:flex;align-items:center;height:var(--t);padding:0 8px 0 18px;max-width:34rem}
+.searchbar svg{color:var(--accent)}
+.searchbar input{flex:1;background:none;border:0;height:100%;font-size:1.3rem;margin:0 10px;padding:0}
+.searchbar .btn{height:60px;min-width:60px;border-radius:18px}
+.pill{display:inline-flex;align-items:center;height:var(--t);padding:0 26px 0 20px;font-size:1.25rem;font-weight:700}
+.pill svg{color:var(--accent);margin-right:12px}
+.results{margin-top:10px;max-height:60vh;overflow:auto;max-width:34rem}
+.results button{display:block;width:100%;text-align:left;padding:14px 20px;min-height:var(--t);border-bottom:1px solid var(--rim);font-size:1.05rem;color:var(--on-var)}
+.results button b{display:block;font-size:1.3rem;color:var(--on)}
+.eta{display:flex;align-items:center;padding:10px 12px 10px 22px;min-height:calc(var(--t) + 16px)}
+.eta .cell{margin-right:28px}
+.eta .num{font-size:2rem;line-height:1.05}
+.eta .lbl{font-size:.85rem}
+.mapempty{position:absolute;left:50%;bottom:45%;-webkit-transform:translateX(-50%);transform:translateX(-50%);z-index:400;background:rgba(16,20,24,.92);border-radius:18px;padding:12px 22px;font-size:1.15rem;color:var(--on-var);white-space:nowrap}
+.me{width:26px;height:26px;border-radius:50%;background:var(--accent);border:4px solid #001f24;box-shadow:0 0 0 8px rgba(0,229,255,.25)}
+.mappage{height:100%;position:relative;border-radius:var(--r);overflow:hidden}
+.mapcard.compact .ov-r .btn:nth-child(n+3){display:none}
+.mapcard.compact .turn .ic{width:56px;height:56px}.mapcard.compact .turn .num{font-size:1.8rem}
+
+/* Drawer */
+.drawer{position:absolute;top:0;right:0;bottom:0;width:30rem;max-width:92%;z-index:700;background:var(--c-low);box-shadow:-12px 0 32px rgba(0,0,0,.55);padding:18px;overflow:auto;display:none}
+.drawer.open{display:block}
+.drawer h3{font-family:Roboto,Arial,sans-serif;margin:0 0 14px;font-size:1.6rem;display:flex;align-items:center}
+.drawer h3 span{flex:1}
+.drawer .sec{margin-bottom:18px}
+.drawer .btn{width:100%;margin-bottom:10px;justify-content:flex-start}
+details{background:var(--c);border-radius:18px;padding:0 18px;margin-bottom:10px}
+summary{min-height:var(--t);display:flex;align-items:center;font-weight:700;font-size:1.15rem;cursor:pointer;outline:none}
+details p{font-size:1.1rem;color:var(--on-var);line-height:1.5;margin:0 0 16px}
+
+/* Media page */
+.player{height:100%;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;grid-column-gap:28px;grid-row-gap:16px;padding:24px;background:radial-gradient(120% 90% at 15% 30%,rgba(0,229,255,.12),transparent 60%),var(--c)}
+.player .art{width:46vh;height:46vh;align-self:center}
+.player .art .ph svg{width:30%;height:30%}
+.player .info{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.player .t{font-family:Roboto,Arial,sans-serif;font-weight:700;font-size:2.4rem;line-height:1.15}
+.player .a{font-size:1.4rem;color:var(--on-var);margin-top:6px}
+.times{display:flex;justify-content:space-between;font-size:1rem;color:var(--on-var);margin-top:6px}
+.player .ctrls{justify-content:flex-start;margin-top:18px}
+.player .ctrls .btn{width:88px;height:88px;border-radius:26px;margin-right:18px}
+.player .ctrls .btn svg.i{width:44px;height:44px}
+.player .play{width:104px;height:104px;margin-right:18px}
+.player .play svg.i{width:52px;height:52px}
+.srcrow{grid-column:1 / span 2;display:flex;overflow-x:auto}
+.srcrow .btn{margin-right:10px;flex:none}
+.ptools{position:absolute;right:24px;top:24px;display:flex}
+.ptools .btn{margin-left:10px}
+
+/* Vehicle */
+.obd{height:100%;display:grid;grid-template-rows:minmax(0,1fr) auto;grid-gap:var(--gap)}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-gap:var(--gap);min-height:0}
+.metric{background:var(--c);border-radius:var(--r);padding:16px 20px;display:flex;flex-direction:column;justify-content:space-between;min-height:0}
+.metric .num{font-size:3.6rem;line-height:1}
+.metric .num small{font-family:Manrope;font-size:1.2rem;font-weight:600;color:var(--on-var);margin-left:6px;letter-spacing:0}
+.meter{height:8px;border-radius:4px;background:var(--c-low);overflow:hidden}
+.meter b{display:block;height:100%;width:0;background:var(--accent)}
+.status{display:flex;align-items:center;background:var(--c);border-radius:var(--r);padding:8px 8px 8px 22px}
+.status .btn+.btn{margin-left:10px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--outline);margin-right:16px;flex:none}
+.dot.ok{background:var(--green)}.dot.warn{background:var(--amber)}.dot.err{background:#ff6b6b}
+.status b{font-size:1.3rem}
+.devs .btn{width:100%;justify-content:flex-start;margin-bottom:10px;background:var(--c)}
+
+/* Settings (used parked; still car-sized) */
+.settings{height:100%;display:grid;grid-template-columns:17rem minmax(0,1fr);grid-gap:var(--gap)}
+.tabs{background:var(--c);border-radius:var(--r);padding:10px;overflow:auto}
+.tabs .btn{width:100%;justify-content:flex-start;background:none;color:var(--on-var);margin-bottom:4px;font-size:1.15rem;padding:0 18px}
+.tabs .btn.on{background:var(--accent);color:var(--on-accent)}
+.pane{overflow:auto;min-height:0}
+.pane .card{margin-bottom:var(--gap)}
+.pane h2{font-family:Roboto,Arial,sans-serif;font-size:1.8rem;margin:0 0 6px}
+.pane p.d{font-size:1.1rem;color:var(--on-var);margin:0 0 16px;line-height:1.45}
+.pane .sub{font-size:1rem;font-weight:700;color:var(--on-var);margin:20px 0 10px;letter-spacing:.04em}
+.lay{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-gap:12px}
+.lay button{background:var(--c-high);border-radius:20px;padding:14px;text-align:left;font-weight:700;font-size:1.1rem;min-height:8rem;border:3px solid transparent}
+.lay button.on{border-color:var(--accent);background:var(--accent-soft)}
+.thumb{height:3.6rem;display:grid;grid-gap:4px;margin-bottom:10px}
+.thumb i{background:var(--c-bright);border-radius:6px;display:block}
+.lay button.on .thumb i{background:var(--accent)}
+.slot{display:flex;align-items:center;background:var(--c-high);border-radius:20px;padding:8px 8px 8px 20px;margin-bottom:10px}
+.slot .k{font-family:Roboto,Arial,sans-serif;font-weight:700;font-size:1.3rem;color:var(--accent);width:3rem;flex:none}
+.slot select{flex:1;margin-right:8px;background:var(--c-highest)}
+.slot .btn{margin-left:8px;background:var(--c-highest)}
+.seg{display:flex;background:var(--c-high);border-radius:22px;padding:6px}
+.seg button{flex:1;height:64px;border-radius:18px;font-weight:700;font-size:1.15rem;color:var(--on-var)}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+.slider{margin:4px 0 14px}
+.slider .row{justify-content:space-between;font-size:1.15rem}
+.slider .row b{color:var(--accent);font-family:'Space Grotesk'}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:var(--t);background:none;border:0;padding:0}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:var(--c-highest)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:44px;border-radius:50%;background:var(--accent);margin-top:-17px;border:5px solid var(--on-accent)}
+.swatches{display:flex;flex-wrap:wrap}
+.swatches button{width:64px;height:64px;border-radius:50%;margin:0 12px 12px 0;border:4px solid transparent}
+.swatches button.on{border-color:#fff}
+.kv{display:flex;justify-content:space-between;align-items:center;min-height:64px;border-bottom:1px solid var(--rim);font-size:1.15rem}
+.kv:last-child{border-bottom:0}
+.kv b{text-align:right}
+.brands{display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));grid-gap:10px;margin-top:14px}
+.brands button{background:var(--c-high);border-radius:20px;min-height:8rem;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1rem;font-weight:700;border:3px solid transparent}
+.brands button.on{border-color:var(--accent);background:var(--accent-soft)}
+.brands img{height:3rem;max-width:6rem;object-fit:contain;margin-bottom:8px}
+.logo-fb{width:3.2rem;height:3.2rem;border-radius:50%;background:var(--c-bright);display:flex;align-items:center;justify-content:center;font-family:Roboto,Arial,sans-serif;margin-bottom:8px}
+.hero{display:flex;align-items:center;background:radial-gradient(90% 120% at 20% 0,var(--accent-soft),transparent 70%),var(--c-high);border-radius:20px;padding:18px}
+.hero img{height:4rem;max-width:8rem;object-fit:contain;margin-right:18px}
+.hero .num{font-size:2rem}
+.ota-bar{height:10px;border-radius:5px;background:var(--c-highest);overflow:hidden;margin:16px 0 10px}
+.ota-bar b{display:block;height:100%;width:0;background:var(--accent)}
+.note{font-size:1rem;color:var(--outline);line-height:1.45;margin-top:12px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-gap:var(--gap)}
+.check{display:flex;align-items:center;min-height:var(--t);font-size:1.1rem}
+.check input{width:36px;height:36px;margin-right:14px}
+
+/* Narrow / short screens (800×480 class) */
+body.bp-s .lay{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.bp-s .two{grid-template-columns:1fr}
+body.bp-s .settings{grid-template-columns:var(--t) minmax(0,1fr)}
+body.bp-s .tabs .btn span{display:none}
+body.bp-s .tabs .btn{padding:0;justify-content:center;width:var(--t);height:var(--t)}
+body.bp-s .tabs .btn svg{margin:0}
+body.bp-s .tabs{padding:6px}
+body.bp-s .metric .num{font-size:2.8rem}
+body.bp-s .player .t{font-size:1.9rem}
+body.bp-s .player .art{width:40vh;height:40vh}
+body.bp-s .player .ctrls .btn{width:76px;height:76px}
+body.bp-s .player .play{width:92px;height:92px}
+body.bp-s .speed .big .num{font-size:4.6rem}
+body.bp-s .eta .cell{margin-right:18px}
+body.bp-s .eta .num{font-size:1.7rem}
+.short .pair{display:none}
+.short.speed .big .num{font-size:4.2rem}
+.short .src{display:none}
+.short.media .a{display:none}
+.short.media .mrow .art{width:72px;height:72px}
+.short.media .ctrls{margin-top:4px}
+.short.media .prog{display:none}
+.short .vals .num{font-size:2.4rem}
+.card-h .open{height:var(--t);margin:-18px -14px -18px 0}
+body.bp-s .home.lm2{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+body.bp-s .card{padding:14px}
+.short.media .play{width:var(--t);height:var(--t)}
+.short.media .ctrls{justify-content:space-between}
+.searchbar .btn svg{color:var(--on-accent)}
+.pill{white-space:nowrap;max-width:100%;overflow:hidden}
+body.bp-s .player .info{padding-top:calc(var(--t) + 6px)}
+body.bp-s .ptools{right:14px;top:14px}
+
+/* Browser preview improvements, and click-safe demo toggle. */
+.demo-flag a{color:#fff;text-decoration:underline;text-underline-offset:3px;margin-left:3px}
+#app{min-height:0}
+@media (max-width:650px){
+  #rail{width:68px!important;}
+  .rb{width:58px;height:58px;border-radius:17px}
+  #view{padding:7px}
+  .home.lm2{grid-template-columns:1fr;grid-template-rows:52% 24% 24%}
+  .home.lm2>:first-child{grid-row:auto}
+  .home.l3,.home.l4{grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(0,1fr))}
+  .home.l2{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .demo-flag{font-size:.7rem;max-width:95%;text-align:center}
+}
+</style></head><body>
+<div id="app"><nav id="rail" aria-label="Menu principal"></nav><main id="view"></main></div>
+<button id="exitFull" type="button" onclick="Aura.full(false)" aria-label="Sair da tela cheia"></button>
+<div id="toast" role="status"></div>
+<script>/* AD Car Aura fallback map engine. No dependencies. Simplified raster tiles, pan, zoom,
+   overlays. Loaded only if Leaflet CDN is not available. Coordinates use Web Mercator. */
+(function (w) {
+  'use strict';
+  if (w.L) return;
+  var TILE = 256, PI = Math.PI;
+  function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+  function merc(lat,lon,z){var s=TILE*Math.pow(2,z),r=clamp(lat,-85.051128,85.051128)*PI/180;return {x:(lon+180)/360*s,y:(1-Math.log(Math.tan(r)+1/Math.cos(r))/PI)/2*s};}
+  function inv(x,y,z){var s=TILE*Math.pow(2,z);return [Math.atan(Math.sinh(PI*(1-2*y/s)))*180/PI,x/s*360-180];}
+  function el(tag,cl,parent){var a=document.createElement(tag);if(cl)a.className=cl;if(parent)parent.appendChild(a);return a;}
+  function str(t){return String(t||'');}
+  function MiniMap(node,opts){this.el=typeof node==='string'?document.getElementById(node):node;this.z=opts.zoom||10;this.center=opts.center||[-22.9,-43.2];this.handlers={};this.layers=[];this.url='';this.attribution='';this.tilemax=19;this.dragging=false;
+    this.el.innerHTML='';this.el.style.overflow='hidden';this.el.style.touchAction='none';
+    this.tiles=el('div','mini-map-tiles',this.el);this.objects=el('div','mini-map-objects',this.el);this.labels=el('div','mini-map-labels',this.el);
+    this.labels.innerHTML='<div class="mini-map-mark">AD CAR AURA · mapa OSM</div><div class="mini-map-credit">© OpenStreetMap contributors</div>';
+    var self=this, down=null, lastX=0,lastY=0;
+    function point(ev){var t=ev.touches&&ev.touches.length?ev.touches[0]:ev;return {x:t.clientX,y:t.clientY};}
+    function start(ev){if(ev.button!=null&&ev.button!==0)return;down=point(ev);lastX=down.x;lastY=down.y;self.dragging=false;}
+    function move(ev){if(!down)return;var p=point(ev),dx=p.x-lastX,dy=p.y-lastY;if(!self.dragging&&Math.abs(p.x-down.x)+Math.abs(p.y-down.y)>4){self.dragging=true;self.fire('dragstart');}if(self.dragging){var c=merc(self.center[0],self.center[1],self.z);self.center=inv(c.x-dx,c.y-dy,self.z);self.render();if(ev.cancelable)ev.preventDefault();}lastX=p.x;lastY=p.y;}
+    function stop(){down=null;}
+    this._listeners=[['mousedown',start,this.el],['mousemove',move,w],['mouseup',stop,w],['touchstart',start,this.el],['touchmove',move,this.el],['touchend',stop,this.el]];
+    this._listeners.forEach(function(a){a[2].addEventListener(a[0],a[1],{passive:false});});
+    this._wheel=function(ev){ev.preventDefault();self.setZoom(self.z+(ev.deltaY<0?1:-1));};this.el.addEventListener('wheel',this._wheel,{passive:false});
+    /* Wait for tileLayer to supply a tile URL. */
+  }
+  MiniMap.prototype.on=function(n,fn){this.handlers[n]=fn;return this;};
+  MiniMap.prototype.fire=function(n){if(this.handlers[n])this.handlers[n]();};
+  MiniMap.prototype.getZoom=function(){return this.z;};
+  MiniMap.prototype.setZoom=function(z){this.z=clamp(Math.round(z),2,this.tilemax);this.render();return this;};
+  MiniMap.prototype.setView=function(ll,z){this.center=[+ll[0],+ll[1]];if(z!=null)this.z=clamp(Math.round(z),2,this.tilemax);this.render();return this;};
+  MiniMap.prototype.invalidateSize=function(){this.render();return this;};
+  MiniMap.prototype.addLayer=function(layer){if(this.layers.indexOf(layer)<0)this.layers.push(layer);layer._map=this;this.renderObjects();return this;};
+  MiniMap.prototype.removeLayer=function(layer){var n=this.layers.indexOf(layer);if(n>=0)this.layers.splice(n,1);this.renderObjects();return this;};
+  MiniMap.prototype.fitBounds=function(b){var coords=b.coords||b,latmin=90,latmax=-90,lomin=180,lomax=-180;
+    coords.forEach(function(ll){latmin=Math.min(latmin,ll[0]);latmax=Math.max(latmax,ll[0]);lomin=Math.min(lomin,ll[1]);lomax=Math.max(lomax,ll[1]);});
+    this.center=[(latmin+latmax)/2,(lomin+lomax)/2];
+    for(var z=18;z>=2;z--){var a=merc(latmin,lomin,z),c=merc(latmax,lomax,z);if(Math.abs(c.x-a.x)<this.el.clientWidth-90&&Math.abs(c.y-a.y)<this.el.clientHeight-90){this.z=z;break;}}
+    this.render();return this;};
+  MiniMap.prototype.render=function(){var W=this.el.clientWidth,H=this.el.clientHeight;if(!W||!H)return;if(!this.url){this.renderObjects();return;}
+    var center=merc(this.center[0],this.center[1],this.z),left=center.x-W/2,top=center.y-H/2;
+    var x0=Math.floor(left/TILE),x1=Math.floor((left+W)/TILE),y0=Math.floor(top/TILE),y1=Math.floor((top+H)/TILE),n=Math.pow(2,this.z),shown={};
+    for(var y=y0;y<=y1;y++)for(var x=x0;x<=x1;x++){if(y<0||y>=n)continue;var k=x+'-'+y+'-'+this.z;shown[k]=true;var img=this.tiles.querySelector('[data-tile="'+k+'"]');
+      if(!img){img=el('img','mini-map-tile',this.tiles);img.setAttribute('data-tile',k);img.draggable=false;img.alt='';img.referrerPolicy='no-referrer';img.onerror=function(){this.style.visibility='hidden';};
+        var ux=(x%n+n)%n;img.src=this.url.replace('{z}',this.z).replace('{x}',ux).replace('{y}',y);}
+      img.style.left=(x*TILE-left)+'px';img.style.top=(y*TILE-top)+'px';
+    }
+    var existing=this.tiles.querySelectorAll('[data-tile]');for(var i=0;i<existing.length;i++)if(!shown[existing[i].getAttribute('data-tile')])this.tiles.removeChild(existing[i]);
+    this.renderObjects();};
+  MiniMap.prototype.screen=function(ll){var c=merc(this.center[0],this.center[1],this.z),p=merc(ll[0],ll[1],this.z);return [p.x-c.x+this.el.clientWidth/2,p.y-c.y+this.el.clientHeight/2];};
+  MiniMap.prototype.renderObjects=function(){while(this.objects.firstChild)this.objects.removeChild(this.objects.firstChild);var that=this;
+    function draw(l){if(l.group){l.layers.forEach(draw);return;}if(!l.latlngs&&l.latlng){var xy=that.screen(l.latlng),a=el('div','mini-map-marker',that.objects);a.style.left=xy[0]+'px';a.style.top=xy[1]+'px';
+      if(l.circle){a.className+=' mini-map-circle';a.style.width=(l.opts.radius*2||18)+'px';a.style.height=(l.opts.radius*2||18)+'px';a.style.border=(l.opts.weight||2)+'px solid '+(l.opts.color||'#fff');a.style.background=l.opts.fillColor||'#00e5ff';}
+      else{a.innerHTML=l.icon.html||'';a.style.marginLeft=-(l.icon.iconAnchor?l.icon.iconAnchor[0]:10)+'px';a.style.marginTop=-(l.icon.iconAnchor?l.icon.iconAnchor[1]:10)+'px';}return;}
+      if(l.latlngs&&l.latlngs.length){var svg=el('div','mini-map-vector',that.objects);svg.style.width=that.el.clientWidth+'px';svg.style.height=that.el.clientHeight+'px';var pts=l.latlngs.map(function(ll){return that.screen(ll).join(',');}).join(' ');svg.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><polyline fill="none" stroke="'+str(l.opts.color||'#00e5ff').replace(/[^#a-zA-Z0-9(),.% ]/g,'')+'" stroke-width="'+(+l.opts.weight||5)+'" stroke-linejoin="round" stroke-linecap="round" points="'+pts+'"/></svg>';}
+    }
+    this.layers.forEach(draw);};
+  MiniMap.prototype.remove=function(){if(this._listeners)this._listeners.forEach(function(a){a[2].removeEventListener(a[0],a[1]);});this.el.removeEventListener('wheel',this._wheel);this.el.innerHTML='';this.layers=[];};
+  function piece(t,o){return {type:t,opts:o||{},addTo:function(m){m.addLayer(this);return this;}};}
+  w.L={
+    map:function(elem,opts){return new MiniMap(elem,opts);},
+    tileLayer:function(u,o){var layer={addTo:function(m){m.url=u;m.tilemax=(o&&o.maxZoom)||19;m.render();return layer;}};return layer;},
+    divIcon:function(o){return o;},
+    marker:function(ll,o){var r=piece('marker',o);r.latlng=ll;r.icon=(o||{}).icon||{};r.setLatLng=function(p){this.latlng=p;if(this._map)this._map.renderObjects();};return r;},
+    circleMarker:function(ll,o){var r=piece('circle',o);r.latlng=ll;r.circle=true;return r;},
+    polyline:function(ll,o){var r=piece('line',o);r.latlngs=ll;return r;},
+    layerGroup:function(l){var r=piece('group');r.layers=l;r.group=true;return r;},
+    latLngBounds:function(l){return {coords:l};}
+  };
+})(window);
+</script><script>/* Basic local brand catalogue. Labels and slugs are public identifiers; logo imagery loads over HTTPS. */
+window.ADCAR_BRANDS=[
+['Jeep','jeep'],['Fiat','fiat'],['Volkswagen','volkswagen'],['Chevrolet','chevrolet'],['Ford','ford'],['Toyota','toyota'],['Honda','honda'],['Hyundai','hyundai'],['Renault','renault'],['Nissan','nissan'],['BMW','bmw'],['Mercedes-Benz','mercedes-benz'],['Peugeot','peugeot'],['Citroën','citroen'],['Kia','kia'],['Volvo','volvo'],['BYD','byd'],['GWM','gwm'],['Audi','audi'],['Land Rover','land-rover'],['Mitsubishi','mitsubishi'],['Suzuki','suzuki'],['Chery','chery'],['RAM','ram'],['Porsche','porsche'],['Jaguar','jaguar'],['Lexus','lexus'],['Subaru','subaru'],['Mini','mini'],['Dodge','dodge'],['Chrysler','chrysler'],['Acura','acura'],['Mazda','mazda'],['Tesla','tesla'],['Alfa Romeo','alfa-romeo'],['Maserati','maserati'],['Ferrari','ferrari'],['Lamborghini','lamborghini'],['Bentley','bentley'],['Rolls-Royce','rolls-royce'],['Smart','smart'],['Opel','opel'],['Seat','seat'],['Škoda','skoda'],['Saab','saab'],['Dacia','dacia'],['Genesis','genesis'],['Infiniti','infiniti'],['Lincoln','lincoln'],['Buick','buick'],['GMC','gmc'],['Cadillac','cadillac'],['Hummer','hummer'],['Polestar','polestar'],['Rivian','rivian'],['Lucid','lucid'],['Troller','troller'],['JAC','jac'],['Geely','geely'],['Lifan','lifan'],['BAIC','baic'],['DFSK','dfsk'],['Mahindra','mahindra'],['Tata','tata'],['Isuzu','isuzu'],['Daihatsu','daihatsu'],['SsangYong','ssangyong'],['Proton','proton'],['Great Wall','great-wall'],['Omoda','omoda'],['Jaecoo','jaecoo'],['Leapmotor','leapmotor'],['Neta','neta'],['Zeekr','zeekr']
+];
+</script><script>/* AD Car Aura 2.8.1 · interface "Aura In-Cabin OS". ES5 only (Android 8.1 WebView).
+   Bridge: window.ADNative (Java) -> calls; window.ADCar.* <- callbacks. Values the car or GPS did not deliver are shown as "—". */
+(function(){'use strict';
+var N=window.ADNative||null;
+var DEMO=!N&&/demo/.test(location.hash);
+var VERSION_UI='2.8.1';
+var WIDGETS={mapa:'Mapa e rota',velocimetro:'Velocidade',midia:'Mídia',motor:'Motor (OBD2)',viagem:'Computador de bordo',clima:'Relógio e clima',atalhos:'Atalhos de apps'};
+
+/* ---------- options (localStorage "adcar2", compatible with 2.6.0) ---------- */
+var opts={layout:'m2',screens:['mapa','midia','velocimetro','motor'],screen:'home',tab:'layout',color:'#00e5ff',safeTop:-1,safeBottom:0,
+  aaPreset:'conforto',uiScale:1,spacing:12,adaptive:true,mapSource:'online',maptilerKey:'',
+  make:'Jeep',makeSlug:'jeep',model:'Renegade',year:'2019',customBrandUrl:'',home:null,favDest:[]};
+try{var saved=JSON.parse(localStorage.getItem('adcar2')||'null');if(saved)for(var k in saved)if(opts.hasOwnProperty(k))opts[k]=saved[k];}catch(e){}
+if(['home','map','media','vehicle','settings'].indexOf(opts.screen)<0){var old=opts.screen;opts.screen=old==='editor'||old==='garage'||old==='updates'?'settings':'home';if(old==='garage')opts.tab='garage';if(old==='updates')opts.tab='updates';}
+if([2,3,4,'m2'].indexOf(opts.layout)<0)opts.layout=3;
+opts.screens=(opts.screens||[]).filter(function(s){return WIDGETS.hasOwnProperty(s);});
+var defaults=['mapa','midia','velocimetro','motor'];while(opts.screens.length<4)opts.screens.push(defaults.filter(function(d){return opts.screens.indexOf(d)<0;})[0]||'atalhos');
+if(opts.color==='#00E5FF')opts.color='#00e5ff';
+try{if(localStorage.getItem('aura280')!=='1'&&!/l=/.test(location.hash)){opts.layout='m2';opts.screens=['mapa','midia','velocimetro','motor'];opts.aaPreset='conforto';opts.uiScale=1;opts.spacing=12;localStorage.setItem('aura280','1');}}catch(e){}
+/* Test hooks for the PC screenshot harness only (not saved): #demo&s=map&l=4&t=garage */
+(function(){var h=location.hash.replace('#','').split('&');for(var i=0;i<h.length;i++){var kv=h[i].split('=');if(kv[0]==='s')opts.screen=kv[1];if(kv[0]==='t'){opts.screen='settings';opts.tab=kv[1];}if(kv[0]==='l')opts.layout=kv[1]==='m2'?'m2':Number(kv[1]);}})();
+function save(){try{localStorage.setItem('adcar2',JSON.stringify(opts));}catch(e){}}
+
+/* ---------- live state ---------- */
+var st={gps:false,speed:null,lat:null,lon:null,bearing:null,alt:null,obd:false,obdState:'idle',obdDetail:'',obdSource:'',obdTarget:'',rpm:null,temp:null,load:null,throttle:null,voltage:null,obdSpeed:null,mapReady:false};
+var md={available:false,title:'',artist:'',album:'',source:'',cover:'',playing:false,durationMs:0,positionMs:0,at:0,permission:true};
+var app={versionName:N?'?':'2.8.1 Web',versionCode:0,brouter:false};
+var upd={stage:'idle',message:'Toque em Verificar para consultar o GitHub.',percent:0,version:'',notes:'',url:'',checked:false,available:false};
+var trip={km:0,start:Date.now(),last:null,moving:0};
+try{var tr=JSON.parse(localStorage.getItem('auraTrip')||'null');if(tr&&tr.start)trip=tr;trip.last=null;}catch(e){}
+var weather=null,weatherAt=0,volPct=null,route=null,follow=true,map=null,mapLayers={},drawerOpen=false,isFull=false;
+if(DEMO){st={gps:true,speed:64,lat:-22.5095,lon:-43.1789,bearing:30,alt:845,obd:true,obdState:'ok',obdDetail:'DEMONSTRAÇÃO',obdSource:'demo',obdTarget:'',rpm:1840,temp:88,load:14,throttle:6,voltage:13.8,obdSpeed:63,mapReady:false};
+  md={available:true,title:'Aquarela',artist:'Toquinho',album:'Aquarela',source:'demo',cover:'',playing:true,durationMs:242000,positionMs:95000,at:Date.now(),permission:true};}
+
+/* ---------- helpers ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function has(v){return v!==null&&v!==undefined&&v!==''&&!(typeof v==='number'&&isNaN(v));}
+function fmtNum(v,d){return has(v)?Number(v).toFixed(d||0).replace('.',','):'—';}
+function call(m,a){try{if(N&&typeof N[m]==='function')return N[m](a==null?'':String(a));}catch(e){toast('Falha: '+m);}return null;}
+function json(s,f){try{return s?JSON.parse(s):f;}catch(e){return f;}}
+function fmtTime(ms){var n=Math.max(0,Math.floor((ms||0)/1000));return Math.floor(n/60)+':'+('0'+n%60).slice(-2);}
+function fmtDist(m){if(!has(m))return '—';return m<950?(Math.round(m/10)*10)+' m':(m/1000).toFixed(m<9950?1:0).replace('.',',')+' km';}
+function fmtDur(s){if(!has(s))return '—';var mi=Math.round(s/60);return mi<60?mi+' min':Math.floor(mi/60)+' h '+('0'+mi%60).slice(-2);}
+function hav(a,b,c,d){var R=6371000,p=Math.PI/180,x=Math.sin((c-a)*p/2),y=Math.sin((d-b)*p/2);return 2*R*Math.asin(Math.sqrt(x*x+Math.cos(a*p)*Math.cos(c*p)*y*y));}
+var toastT=0;function toast(s){var t=$('toast');t.textContent=s;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(function(){t.style.display='none';},3800);}
+
+/* ---------- icons (inline SVG, 24px grid) ---------- */
+var P={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ nav:'<path d="M12 2l7 19-7-4-7 4z"/>',
+ music:'<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+ gauge:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/>',
+ tune:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+ close:'<path d="M6 6l12 12M18 6L6 18"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+ loc:'<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+ prev:'<path d="M6 5h2v14H6zM20 5v14L9 12z" class="f"/>',next:'<path d="M16 5h2v14h-2zM4 5v14l11-7z"/>',
+ play:'<path d="M7 4v16l13-8z"/>',pause:'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>',
+ full:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',exit:'<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/><path d="M9 9l-5-5M15 9l5-5M9 15l-5 5M15 15l5 5"/>',
+ more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+ vdown:'<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 12h5"/>',vup:'<path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15 12h6M18 9v6"/>',
+ radio:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8l10-5"/><circle cx="15" cy="14" r="2.5"/><path d="M6 13h4M6 16h4"/>',
+ bt:'<path d="M7 7l10 10-5 4V3l5 4L7 17"/>',
+ usb:'<path d="M12 3v14"/><circle cx="12" cy="19" r="2"/><path d="M8 7l4-4 4 4M7 11v2l5 3M17 10v3l-5 3"/>',
+ spotify:'<circle cx="12" cy="12" r="9"/><path d="M7.5 10c3-1 6.5-.7 9 .8M8 13.2c2.5-.7 5-.5 7 .6M8.6 16.1c2-.5 3.8-.3 5.4.5"/>',
+ yt:'<rect x="3" y="6" width="18" height="12" rx="4"/><path d="M10 9.5v5l4.5-2.5z"/>',
+ waze:'<path d="M5 16a7 7 0 1 1 13 0"/><path d="M5 16c-1 0-2 1-2 2M18 16h1a2 2 0 0 0 2-2"/><circle cx="9" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/>',
+ maps:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+ down:'<path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/>',
+ car:'<path d="M5 17h14M6 17l1.5-6h9L18 17"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M4 11h16"/>',
+ obd:'<rect x="4" y="7" width="16" height="10" rx="2"/><path d="M8 11h.01M11 11h.01M14 11h.01M17 11h.01M9.5 14h.01M12.5 14h.01M15.5 14h.01"/>',
+ wifi:'<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ trip:'<path d="M4 19l5-14 3 8 3-4 5 10"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+ up:'<path d="M6 15l6-6 6 6"/>',dn:'<path d="M6 9l6 6 6-6"/>',
+ straight:'<path d="M12 21V4M6 10l6-6 6 6"/>',
+ right:'<path d="M6 21v-8a4 4 0 0 1 4-4h9"/><path d="M15 5l4 4-4 4"/>',left:'<path d="M18 21v-8a4 4 0 0 0-4-4H5"/><path d="M9 5L5 9l4 4"/>',
+ sright:'<path d="M8 21V11l9-6"/><path d="M12 4h5v5"/>',sleft:'<path d="M16 21V11L7 5"/><path d="M12 4H7v5"/>',
+ uturn:'<path d="M8 21V9a5 5 0 0 1 10 0v4"/><path d="M14 10l4 4 4-4"/>',
+ flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',
+ star:'<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9z"/>',
+ apps:'<circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/>'
+};
+function I(n,cls){var f=(n==='prev'||n==='next'||n==='play'||n==='pause');return '<svg class="i'+(f?' f':'')+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||'')+'</svg>';}
+function B(icon,label,onclick,cls,attrs){return '<button type="button" class="btn'+(cls?' '+cls:'')+(label?'':' icon')+'" onclick="'+onclick+'"'+(attrs||'')+(label?'':' aria-label="'+esc(icon)+'"')+'>'+(icon?I(icon):'')+(label?'<span>'+label+'</span>':'')+'</button>';}
+
+
+/* ---------- sizing: one scale for the whole UI, touch targets never under 48 px ---------- */
+var insets=null;
+function applySizing(){
+  var d=document.documentElement,b=document.body;
+  var top=Number(opts.safeTop)>=0?Math.min(120,Number(opts.safeTop)):0, bottom=Math.max(0,Math.min(120,Number(opts.safeBottom)||0));
+  var w=window.innerWidth,h=window.innerHeight-top-bottom;
+  /* Android Auto / CarPlay: 76 dp minimum touch target. Presets only go up from there (Compacto keeps 68 for 800×480 units). */
+  var t={compacto:68,conforto:76,extra:88}[opts.aaPreset]||76;
+  if(h<440)t=Math.min(t,68);
+  var scale=Math.max(.85,Math.min(1.55,Number(opts.uiScale)||1));
+  d.style.fontSize=(16*scale).toFixed(2)+'px';
+  var ts=Math.round(t*(1+.18*(scale-1)));
+  d.style.setProperty('--t',ts+'px');
+  d.style.setProperty('--rail',(ts+20)+'px');
+  d.style.setProperty('--ico',Math.round(36*Math.min(1.35,scale))+'px');
+  d.style.setProperty('--gap',Math.max(8,Math.min(20,Number(opts.spacing)||12))+'px');
+  d.style.setProperty('--safe-top',top+'px');
+  $('app').style.bottom=bottom+'px';
+  d.style.setProperty('--accent',opts.color);d.style.setProperty('--accent-soft',hexA(opts.color,.16));d.style.setProperty('--on-accent',onAccent(opts.color));
+  b.className=(w<900||h<520?'bp-s ':'')+(isFull?'full ':'');
+  if(map)setTimeout(function(){if(map)map.invalidateSize();},60);
+}
+function hexA(h,a){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')';}
+function onAccent(h){var n=parseInt(h.slice(1),16),l=.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255);return l>140?'#06222a':'#ffffff';}
+
+/* ---------- header and dock ---------- */
+var SCREENS=[['home','Painel','home'],['map','Mapa','nav'],['media','Mídia','music'],['vehicle','Veículo','gauge'],['settings','Ajustes','tune']];
+function renderHead(){/* No custom header: the Android status bar stays as the system draws it. */}
+function obdChip(){if(st.obd)return st.obdSource==='ponte'?'OBD via Ponte':'OBD2';var s=st.obdState;return s==='connecting'||s==='init'?'OBD conectando':s==='nocar'?'OBD sem resposta':s==='error'?'OBD falhou':'Sem OBD';}
+function renderDock(){
+  var h='<div class="apps">';
+  for(var i=0;i<SCREENS.length;i++){var s=SCREENS[i];h+='<button type="button" class="rb'+(opts.screen===s[0]?' on':'')+'" onclick="Aura.go(\''+s[0]+'\')" aria-label="'+s[1]+'">'+I(s[2])+'</button>';}
+  h+='</div><div class="rail-status" onclick="Aura.go(\'vehicle\')" aria-label="Estado do GPS e do OBD2"><span class="sdot '+(st.gps?'ok':'warn')+'" id="dotGps"></span><span class="sdot '+(st.obd?'ok':'')+'" id="dotObd"></span>'+(upd.available?'<span class="sdot warn"></span>':'')+'</div>';
+  $('rail').innerHTML=h;
+}
+function tick(){var d=new Date();var c=$('clock');if(c)c.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+  var t=$('date');if(t)t.innerHTML=d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')+'<br>'+d.getDate()+' '+d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
+  var w=$('wxClock');if(w&&c)w.textContent=c.textContent;}
+function paintVol(){var b=$('volBar2');if(b)b.style.width=(volPct||0)+'%';}
+function readVol(){var v=json(call('getVolumeState'),null);if(v&&has(v.percent)){volPct=Number(v.percent);paintVol();}}
+
+/* ---------- brand logo ---------- */
+function brandUrl(slug){if(slug==='custom')return /^https:\/\//i.test(opts.customBrandUrl||'')?opts.customBrandUrl:'';
+  return (N?'https://appassets.androidplatform.net/brands/':'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/thumb/')+encodeURIComponent(slug)+'.png';}
+function logoImg(slug,fb){var u=brandUrl(slug);return u?'<img src="'+esc(u)+'" alt="" onerror="this.style.display=\'none\'">':(fb||'');}
+
+/* ---------- widgets ---------- */
+function W(type){
+  if(type==='mapa')return '<section class="card mapcard" data-w="mapa">'+mapShell('w')+'</section>';
+  if(type==='velocimetro')return speedW();
+  if(type==='midia')return mediaW();
+  if(type==='motor')return motorW();
+  if(type==='viagem')return tripW();
+  if(type==='clima')return climaW();
+  if(type==='atalhos')return shortcutsW();
+  return '<section class="card"></section>';
+}
+function head(icon,label,tag,go){return '<div class="card-h"><span class="lbl">'+label+'</span>'+(tag||'')+(go?'<button type="button" class="open" onclick="'+go+'" aria-label="Abrir em tela inteira">'+I('full')+'</button>':'')+'</div>';}
+function speedSrc(){return st.gps&&has(st.speed)?'gps':st.obd&&has(st.obdSpeed)?'obd':'';}
+function speedVal(){var s=speedSrc();return s==='gps'?st.speed:s==='obd'?st.obdSpeed:null;}
+function arc(p){p=Math.max(0,Math.min(1,p||0));var len=219.9;return (len*p).toFixed(1)+' 400';}
+function speedW(){
+  var v=speedVal();
+  return '<section class="card speed">'+head('gauge','Velocidade','<span class="tag '+(speedSrc()?'ok':'warn')+'" data-k="spdsrc">'+spdTag()+'</span>')+
+   '<div class="big"><div class="num" data-k="speed">'+(has(v)?Math.round(v):'—')+'</div><div class="u">KM/H</div></div>'+
+   '<div class="pair"><div><span class="lbl">Rotação</span><span class="num" data-k="rpm">'+val('rpm',0)+'</span><small>rpm</small></div><div><span class="lbl">Viagem</span><span class="num" data-k="tripkm">'+fmtNum(trip.km,1)+'</span><small>km</small></div></div></section>';
+}
+function spdTag(){return speedSrc()==='gps'?'GPS':speedSrc()==='obd'?'OBD2':'Sem GPS';}
+function mini(l,k,u,d){return '<div class="mini"><span class="lbl">'+l+'</span><span class="num" data-k="'+k+'">'+val(k,d)+'</span><small>'+u+'</small></div>';}
+function val(k,d){if(k==='tripkm')return fmtNum(trip.km,1);return st.obd||DEMO?fmtNum(st[k],d):'—';}
+function mediaW(){
+  return '<section class="card media">'+head('music','<span data-k="msrc">'+esc(srcName())+'</span>','',"Aura.go('media')")+
+   '<div class="mrow"><div class="art"><img data-k="mart" alt=""><div class="ph">'+I('music')+'</div></div>'+
+   '<div class="grow"><div class="t ell" data-k="mtitle">'+esc(mTitle())+'</div><div class="a ell" data-k="martist">'+esc(mArtist())+'</div><div class="prog"><b data-k="mprog"></b></div></div></div>'+
+   '<div class="ctrls">'+B('prev','','Aura.key(88)','',' aria-label="Anterior"')+'<button type="button" class="play" onclick="Aura.key(85)" aria-label="Reproduzir ou pausar" data-k="mplay">'+I(md.playing?'pause':'play')+'</button>'+B('next','','Aura.key(87)','',' aria-label="Próxima"')+'</div></section>';
+}
+function srcName(){if(!md.available)return md.permission===false?'Sem permissão':'Android';var s=md.source||'';
+  return /spotify/.test(s)?'Spotify':/youtube/.test(s)?'YT Music':/deezer/.test(s)?'Deezer':/bluetooth|bt|a2dp/i.test(s)?'Bluetooth':s==='demo'?'Demonstração':(s.split('.').pop()||'Android');}
+function mTitle(){return md.available?(md.title||'Faixa sem título'):md.permission===false?'Permita o acesso à mídia':'Nada tocando';}
+function mArtist(){return md.available?(md.artist||md.album||''):md.permission===false?'Ajustes › Mídia › Autorizar':'Inicie o Spotify, YouTube Music ou Bluetooth';}
+var MOTOR=[['Rotação','rpm','rpm',0,7000],['Velocidade OBD','obdSpeed','km/h',0,200],['Líq. arrefec.','temp','°C',0,130],['Carga motor','load','%',0,100],['Acelerador','throttle','%',0,100],['Bateria','voltage','V',1,16]];
+function motorW(){return '<section class="card col" onclick="Aura.go(\'vehicle\')">'+head('obd','Motor','<span class="tag '+(st.obd?'ok':'')+'" data-k="obdtag">'+esc(obdChip())+'</span>')+
+  '<div class="vals"><div><span class="lbl">Temperatura</span><span class="num" data-k="temp">'+val('temp',0)+'</span><small>°C</small></div><div><span class="lbl">Bateria</span><span class="num" data-k="voltage">'+val('voltage',1)+'</span><small>V</small></div></div>'+
+  '<div class="src ell" data-k="obdsrc">'+esc(obdLine())+'</div></section>';}
+function obdLine(){if(DEMO)return 'Valores de demonstração';if(!N)return 'Prévia no navegador: sem leitura real';if(st.obd)return (st.obdSource==='ponte'?'Ponte Wi-Fi ':'Bluetooth ')+(st.obdTarget||'');return st.obdDetail||'Toque em Veículo para conectar o OBD2';}
+function tripW(){var avg=trip.moving>60?trip.km/(trip.moving/3600):null;
+  return '<section class="card col">'+head('trip','Viagem','<button class="tag" onclick="Aura.resetTrip()">Zerar</button>')+
+   '<div class="vals"><div><span class="lbl">Distância</span><span class="num" data-k="tripkm">'+fmtNum(trip.km,1)+'</span><small>km</small></div><div><span class="lbl">Média</span><span class="num" data-k="tripavg">'+fmtNum(avg,0)+'</span><small>km/h</small></div></div>'+
+   '<div class="src">Medida pelo GPS desde '+new Date(trip.start).toLocaleDateString('pt-BR')+'</div></section>';}
+function climaW(){return '<section class="card col">'+head('clock','Clima','')+
+   '<div class="vals"><div><span class="num" data-k="wxt">'+(weather?fmtNum(weather.t,0)+'°':'—')+'</span></div></div><div class="small muted ell" data-k="wxd">'+esc(weather?weather.d:(st.lat==null?'Sem GPS para o clima':'Carregando…'))+'</div>'+
+   '<div class="src">Open-Meteo (internet), posição do GPS</div></section>';}
+function shortcutsW(){return '<section class="card col">'+head('apps','Atalhos','')+'<div class="shortcuts">'+
+   B('waze','Waze',"Aura.launch('waze')")+B('maps','Maps',"Aura.launch('maps')")+B('radio','Rádio',"Aura.radio()")+B('spotify','Spotify',"Aura.launch('spotify')")+'</div></section>';}
+
+/* ---------- home ---------- */
+function slotsFor(l){return l===2?2:l===4?4:3;}
+function buildHome(){
+  var n=slotsFor(opts.layout),list=opts.screens.slice(0,n);
+  if(opts.layout==='m2'){var i=list.indexOf('mapa');if(i>0){list.splice(i,1);list.unshift('mapa');}else if(i<0)list[0]='mapa';}
+  var seenMap=false,h='<div class="home l'+opts.layout+'">';
+  for(var j=0;j<list.length;j++){var t=list[j];if(t==='mapa'){if(seenMap)t='atalhos';seenMap=true;}h+=W(t);}
+  return h+'</div>';
+}
+
+/* ---------- map (Leaflet; online OSM or offline MBTiles raster served by the app) ---------- */
+function mapShell(mode){
+  var page=mode==='page';
+  return '<div class="leaf" id="leaf"></div>'+
+   '<div class="ov ov-tl" id="tl">'+topLeft(page)+'</div>'+
+   '<div class="ov ov-r">'+(page?'':B('full','','Aura.go(\'map\')','',' aria-label="Expandir mapa"'))+
+     B('loc','','Aura.recenter()',follow?'pri':'',' id="recBtn" aria-label="Centralizar no carro"')+
+     (page?B('plus','','Aura.zoom(1)','',' aria-label="Aproximar"')+B('minus','','Aura.zoom(-1)','',' aria-label="Afastar"'):'')+
+     (page?B('more','','Aura.drawer(true)','',' aria-label="Opções do mapa"')+B(isFull?'exit':'full','','Aura.full('+(!isFull)+')','',' aria-label="Tela cheia"'):'')+'</div>'+
+   '<div class="ov ov-b" id="etaBox">'+etaHTML(page)+'</div>';
+}
+/* Top-left: maneuver while navigating; otherwise one big search pill (opens the keyboard only on the map page). */
+function topLeft(page){
+  if(route)return '<div id="turnBox">'+turnHTML()+'</div>';
+  if(page)return searchBar();
+  return '<button type="button" class="glass pill" onclick="Aura.go(\'map\',null,true)">'+I('search')+'Para onde?</button>';
+}
+function searchBar(){return '<div class="glass searchbar">'+I('search')+'<input id="q" placeholder="Para onde?" autocomplete="off" onkeydown="if(event.keyCode===13)Aura.search()">'+
+  B('nav','','Aura.search()','pri',' aria-label="Buscar"')+'</div><div class="glass results" id="results" style="display:none"></div>'+(opts.home?'<div style="margin-top:10px">'+B('home','Casa','Aura.goHome()','glass')+'</div>':'');}
+function turnHTML(){
+  var nx=nextManeuver();
+  if(!route)return '';
+  return '<div class="glass turn"><div class="ic">'+I(nx?nx.icon:'straight')+'</div><div class="grow"><div class="num">'+(nx?fmtDist(nx.dist):'—')+'</div><small class="ell">'+esc(nx?nx.text:'Siga a rota')+'</small></div></div>';
+}
+function etaHTML(page){
+  if(!route){
+    if(page||st.gps)return '';
+    return '<div class="glass eta"><div class="grow small muted">'+(N?'Aguardando GPS':'Aguardando permissão de localização')+'</div></div>';
+  }
+  var rem=remaining();
+  var arr=has(rem.s)?new Date(Date.now()+rem.s*1000):null;
+  return '<div class="glass eta"><div class="cell"><div class="num">'+fmtDur(rem.s)+(route.timeEst?'*':'')+'</div><div class="lbl">'+(route.timeEst?'estimado':'restante')+'</div></div><div class="cell"><div class="num">'+fmtDist(rem.m)+'</div><div class="lbl">distância</div></div>'+
+   (page?'<div class="cell"><div class="num">'+(arr?('0'+arr.getHours()).slice(-2)+':'+('0'+arr.getMinutes()).slice(-2):'—')+'</div><div class="lbl">chegada</div></div>':'')+
+   '<div class="grow"></div>'+B('close','','Aura.clearRoute()','danger',' aria-label="Encerrar rota"')+'</div>';
+}
+function tileUrl(){
+  if(opts.mapSource==='offline'&&st.mapReady)return {u:'https://appassets.androidplatform.net/tiles/{z}/{x}/{y}.png',a:'Mapa offline (MBTiles) · © OpenStreetMap',dark:true,max:18};
+  if(opts.maptilerKey)return {u:'https://api.maptiler.com/maps/streets-v2-dark/256/{z}/{x}/{y}.png?key='+encodeURIComponent(opts.maptilerKey),a:'© MapTiler © OpenStreetMap',dark:false,max:19};
+  return {u:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',a:'© OpenStreetMap',dark:true,max:19};
+}
+function mountMap(){
+  if(map){try{map.remove();}catch(e){}map=null;mapLayers={};}
+  var el=$('leaf');if(!el||!window.L)return;
+  var t=tileUrl();
+  el.className='leaf'+(t.dark?' dark-tiles':'');
+  var c=has(st.lat)?[st.lat,st.lon]:(opts.home?[opts.home.lat,opts.home.lon]:[-22.9,-43.2]);
+  map=L.map(el,{zoomControl:false,attributionControl:true,center:c,zoom:has(st.lat)?16:(opts.home?14:9),zoomSnap:1,inertia:true,tap:true});
+  L.tileLayer(t.u,{maxZoom:t.max,attribution:t.a,crossOrigin:false}).addTo(map);
+  map.on('dragstart',function(){follow=false;var r=$('recBtn');if(r)r.className='btn icon';});
+  if(!has(st.lat))el.insertAdjacentHTML('afterend','<div class="mapempty" id="mapEmpty">'+(N?'Aguardando posição do GPS…':'Autorize a localização para ver sua posição')+'</div>');
+  drawRoute();drawMe();
+  if(opts.screen==='home')el.addEventListener('click',function(){},false);
+}
+function drawMe(){
+  if(!map||!has(st.lat))return;
+  var ll=[st.lat,st.lon];
+  if(!mapLayers.me)mapLayers.me=L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[20,20],iconAnchor:[10,10]}),interactive:false}).addTo(map);
+  else mapLayers.me.setLatLng(ll);
+  var e=$('mapEmpty');if(e)e.parentNode.removeChild(e);
+  if(follow)map.setView(ll,Math.max(map.getZoom(),15),{animate:false});
+}
+function drawRoute(){
+  if(!map)return;
+  if(mapLayers.route){map.removeLayer(mapLayers.route);mapLayers.route=null;}
+  if(mapLayers.dest){map.removeLayer(mapLayers.dest);mapLayers.dest=null;}
+  if(!route)return;
+  mapLayers.route=L.layerGroup([L.polyline(route.coords,{color:'#00363d',weight:11,opacity:.9}),L.polyline(route.coords,{color:opts.color,weight:6})]).addTo(map);
+  mapLayers.dest=L.circleMarker([route.dest.lat,route.dest.lon],{radius:9,color:'#fff',weight:3,fillColor:opts.color,fillOpacity:1}).addTo(map);
+  if(!follow||!has(st.lat))map.fitBounds(L.latLngBounds(route.coords),{padding:[40,40]});
+}
+function remaining(){
+  if(!route)return {m:null,s:null};
+  var i=nearestIdx(),m=0;
+  for(var j=Math.max(i,0);j<route.coords.length-1;j++)m+=route.cum[j+1]-route.cum[j];
+  if(i>=0&&has(st.lat))m+=hav(st.lat,st.lon,route.coords[i][0],route.coords[i][1]);
+  var s=route.time&&route.dist?route.time*(m/route.dist):null;
+  return {m:m,s:s};
+}
+function nearestIdx(){if(!route||!has(st.lat))return 0;var best=0,bd=1e12;for(var i=0;i<route.coords.length;i++){var d=hav(st.lat,st.lon,route.coords[i][0],route.coords[i][1]);if(d<bd){bd=d;best=i;}}return best;}
+function nextManeuver(){
+  if(!route||!route.steps.length)return null;
+  var i=nearestIdx();
+  for(var k=0;k<route.steps.length;k++){var s=route.steps[k];if(s.idx>i){var m=route.cum[s.idx]-route.cum[i];if(has(st.lat))m+=0;return {dist:m,icon:s.icon,text:s.text};}}
+  return {dist:route.cum[route.coords.length-1]-route.cum[i],icon:'flag',text:'Chegada: '+route.dest.name};
+}
+function bearing(a,b){var p=Math.PI/180,y=Math.sin((b[1]-a[1])*p)*Math.cos(b[0]*p),x=Math.cos(a[0]*p)*Math.sin(b[0]*p)-Math.sin(a[0]*p)*Math.cos(b[0]*p)*Math.cos((b[1]-a[1])*p);return (Math.atan2(y,x)/p+360)%360;}
+function turnIcon(delta){var a=Math.abs(delta);if(a>150)return 'uturn';if(a>100)return delta>0?'right':'left';if(a>55)return delta>0?'right':'left';return delta>0?'sright':'sleft';}
+function turnText(delta,name){var a=Math.abs(delta),dir=delta>0?'direita':'esquerda';var t=a>150?'Faça o retorno':a>55?'Vire à '+dir:'Mantenha-se à '+dir;return t+(name?' na '+name:'');}
+/* Maneuvers from geometry (BRouter GPX has no instructions): heading change > 35° over ~30 m. */
+function geomSteps(coords,cum){
+  var out=[],last=-1;
+  for(var i=1;i<coords.length-1;i++){
+    var a=i,b=i;while(a>0&&cum[i]-cum[a]<25)a--;while(b<coords.length-1&&cum[b]-cum[i]<25)b++;
+    if(a===i||b===i)continue;
+    var d=bearing(coords[i],coords[b])-bearing(coords[a],coords[i]);if(d>180)d-=360;if(d<-180)d+=360;
+    if(Math.abs(d)>35&&(last<0||cum[i]-cum[last]>60)){out.push({idx:i,icon:turnIcon(d),text:turnText(d,'')});last=i;}
+  }
+  return out;
+}
+function setRoute(coords,dest,source,dist,time,steps){
+  var cum=[0];for(var i=1;i<coords.length;i++)cum.push(cum[i-1]+hav(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]));
+  var total=dist||cum[cum.length-1],est=!time;
+  route={coords:coords,cum:cum,dest:dest,source:source,dist:total,time:time||total/(40/3.6),timeEst:est,steps:steps||geomSteps(coords,cum)};
+  follow=has(st.lat);drawRoute();refreshMapOverlays();
+}
+function refreshMapOverlays(){var tl=$('tl');if(tl){if(route){var t=$('turnBox');if(t)t.innerHTML=turnHTML();else tl.innerHTML='<div id="turnBox">'+turnHTML()+'</div>';}else if(!$('q'))tl.innerHTML=topLeft(opts.screen==='map');}var e=$('etaBox');if(e)e.innerHTML=etaHTML(opts.screen==='map');}
+var pendingDest=null;
+function routeTo(dest){
+  if(!has(st.lat)){toast('Aguardando GPS: autorize a localização para calcular a rota');return;}
+  pendingDest=dest;toast('Calculando rota para '+dest.name+'…');
+  if(N&&app.brouter){call('routeTo',dest.lat+','+dest.lon);return;}
+  osrm(dest);
+}
+function osrm(dest){
+  var u='https://router.project-osrm.org/route/v1/driving/'+st.lon+','+st.lat+';'+dest.lon+','+dest.lat+'?overview=full&geometries=geojson&steps=true';
+  get(u,function(r){
+    if(!r||!r.routes||!r.routes.length){toast('Rota indisponível (sem internet e sem BRouter)');return;}
+    var R=r.routes[0],coords=R.geometry.coordinates.map(function(c){return [c[1],c[0]];});
+    var steps=[];var cum=[0];for(var i=1;i<coords.length;i++)cum.push(cum[i-1]+hav(coords[i-1][0],coords[i-1][1],coords[i][0],coords[i][1]));
+    (R.legs[0].steps||[]).forEach(function(s){var m=s.maneuver||{};if(m.type==='depart')return;var loc=m.location,best=0,bd=1e12;
+      for(var j=0;j<coords.length;j++){var d=Math.abs(coords[j][0]-loc[1])+Math.abs(coords[j][1]-loc[0]);if(d<bd){bd=d;best=j;}}
+      var mod=m.modifier||'straight',icon=mod.indexOf('uturn')>=0?'uturn':mod.indexOf('sharp right')>=0||mod==='right'?'right':mod.indexOf('sharp left')>=0||mod==='left'?'left':mod==='slight right'?'sright':mod==='slight left'?'sleft':m.type==='arrive'?'flag':'straight';
+      var verb=m.type==='arrive'?'Chegada':m.type==='roundabout'||m.type==='rotary'?'Na rotatória, saída '+(m.exit||''):icon==='right'?'Vire à direita':icon==='left'?'Vire à esquerda':icon==='sright'?'Mantenha-se à direita':icon==='sleft'?'Mantenha-se à esquerda':icon==='uturn'?'Faça o retorno':'Siga em frente';
+      steps.push({idx:best,icon:icon,text:verb+(s.name&&m.type!=='arrive'?' na '+s.name:'')});});
+    setRoute(coords,dest,'Rota online (OSRM)',R.distance,R.duration,steps);
+  },function(){toast('Sem internet para rota online. Instale o BRouter para rotas offline.');});
+}
+function get(url,ok,fail){var x=new XMLHttpRequest();x.open('GET',url,true);x.timeout=12000;x.onload=function(){if(x.status===200){var j=json(x.responseText,null);if(j!=null){ok(j);return;}}if(fail)fail();};x.onerror=x.ontimeout=function(){if(fail)fail();};x.send();}
+function doSearch(){
+  var q=($('q')||{}).value||'';q=q.trim();if(!q)return;
+  var m=q.replace(/\s/g,'').match(/^(-?\d{1,2}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/);
+  if(m){routeTo({name:q,lat:+m[1],lon:+m[2]});return;}
+  var box=$('results');box.style.display='block';box.innerHTML='<button type="button">Buscando…</button>';
+  var near=has(st.lat)?'&viewbox='+(st.lon-1)+','+(st.lat+1)+','+(st.lon+1)+','+(st.lat-1):'';
+  get('https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=br&accept-language=pt-BR'+near+'&q='+encodeURIComponent(q),function(list){
+    lastResults=list||[];
+    box.innerHTML=lastResults.length?lastResults.map(function(r,i){var p=r.display_name.split(',');return '<button type="button" onclick="Aura.pick('+i+')"><b>'+esc(p[0])+'</b>'+esc(p.slice(1,4).join(','))+'</button>';}).join(''):'<button type="button">Nada encontrado</button>';
+  },function(){box.innerHTML='<button type="button">Busca de endereço precisa de internet. Offline: digite lat,lon.</button>';});
+}
+var lastResults=[];
+
+/* ---------- full pages (Modo Foco: content first, options in a collapsible drawer, full screen with visible exit) ---------- */
+function drawer(title,body){return '<aside class="drawer'+(drawerOpen?' open':'')+'" id="drawer"><h3><span>'+title+'</span>'+B('close','','Aura.drawer(false)','',' aria-label="Fechar"')+'</h3>'+body+'</aside>';}
+function pageTools(){return B('more','','Aura.drawer(true)','',' aria-label="Opções"')+B(isFull?'exit':'full','','Aura.full('+(!isFull)+')','',' aria-label="Tela cheia"');}
+function buildMap(){
+  return '<div class="mappage">'+mapShell('page')+'</div>'+
+   drawer('Rota e mapa','<div class="sec">'+
+     (opts.home?B('home','Ir para Casa','Aura.goHome()'):'')+B('star','Salvar posição atual como Casa','Aura.setHome()')+
+     B('waze','Abrir no Waze',"Aura.launch('waze')")+B('maps','Abrir no Google Maps',"Aura.launch('maps')")+B('nav','Abrir BRouter',"Aura.launch('brouter')")+'</div>'+
+     '<div class="sec"><div class="lbl" style="margin-bottom:.5rem">Fonte do mapa</div><div class="seg"><button class="'+(opts.mapSource!=='offline'?'on':'')+'" onclick="Aura.set(\'mapSource\',\'online\')">Online</button><button class="'+(opts.mapSource==='offline'?'on':'')+'" onclick="Aura.set(\'mapSource\',\'offline\')">Offline</button></div>'+
+     '<p class="note">Offline usa o arquivo MBTiles raster importado em Ajustes › Mapa'+(st.mapReady?' (carregado).':' (nenhum importado ainda).')+'</p></div>'+
+     '<details><summary>Como funcionam as rotas</summary><p>Com o BRouter instalado e os segmentos da região baixados, a rota é calculada offline na central. Sem BRouter, usa o OSRM pela internet. O traço do mapa vem do OpenStreetMap ou do MBTiles; o BRouter não desenha mapa.</p></details>')+
+   '';
+}
+function buildMedia(){
+  return '<div class="card player"><div class="art"><img data-k="mart" alt=""><div class="ph">'+I('music')+'</div></div>'+
+   '<div class="info"><div class="lbl" style="color:var(--accent)" data-k="msrc">'+esc(srcName())+'</div><div class="t ell" data-k="mtitle">'+esc(mTitle())+'</div><div class="a ell" data-k="martist">'+esc(mArtist())+'</div>'+
+   '<div class="prog" style="margin-top:22px"><b data-k="mprog"></b></div><div class="times"><span data-k="mpos">0:00</span><span data-k="mdur">0:00</span></div>'+
+   '<div class="ctrls">'+B('prev','','Aura.key(88)','',' aria-label="Anterior"')+'<button type="button" class="play" onclick="Aura.key(85)" data-k="mplay" aria-label="Reproduzir ou pausar">'+I(md.playing?'pause':'play')+'</button>'+B('next','','Aura.key(87)','',' aria-label="Próxima"')+'</div></div>'+
+   '<div class="srcrow">'+B('spotify','Spotify',"Aura.launch('spotify')")+B('yt','YT Music',"Aura.launch('ytmusic')")+B('radio','Rádio','Aura.radio()')+B('bt','Bluetooth',"Aura.launch('bluetooth')")+B('usb','USB',"Aura.launch('files')")+'</div>'+
+   '<div class="ptools">'+B('vdown','','Aura.vol(-1)','',' aria-label="Diminuir volume"')+B('vup','','Aura.vol(1)','',' aria-label="Aumentar volume"')+pageTools()+'</div></div>'+
+   drawer('Som e fontes','<div class="sec"><div class="lbl">Volume do Android</div><div class="row" style="margin:10px 0">'+B('vdown','','Aura.vol(-1)','',' aria-label="Diminuir"')+'<div class="grow ota-bar" style="margin:0 12px"><b id="volBar2"></b></div>'+B('vup','','Aura.vol(1)','',' aria-label="Aumentar"')+'</div></div>'+
+     '<div class="sec"><div class="lbl" style="margin-bottom:10px">Rádio FM da central</div><p class="note" id="fmInfo">'+esc(fm.message||'Toque em Detectar para localizar o app de rádio original.')+'</p>'+
+     B('radio','Abrir rádio original','Aura.radio()','pri')+B('search','Detectar app de rádio','Aura.fmScan()')+'<div id="fmList">'+fmList()+'</div></div>'+
+     '<div class="sec">'+B('gear','Autorizar leitura da mídia','Aura.mediaAccess()')+'</div>'+
+     '<details><summary>Sobre a mídia</summary><p>Título, capa e progresso vêm da sessão de mídia do Android (Spotify, YouTube Music, Bluetooth). Requer a permissão de acesso às notificações. O Aura só abre o rádio FM original: frequência e RDS continuam no app da central.</p></details>');
+}
+var fm={apps:[],selected:'',message:''};
+function fmList(){return fm.apps.map(function(a){return B(a.package===fm.selected?'star':'radio',esc(a.label)+'<small class="muted"> · '+esc(a.package)+'</small>',"Aura.fmPick('"+esc(a.package)+"')");}).join('');}
+function buildVehicle(){
+  var h='<div class="obd"><div class="metrics">';
+  for(var i=0;i<MOTOR.length;i++){var m=MOTOR[i];h+='<div class="metric"><span class="lbl">'+m[0]+'</span><div class="num"><span data-k="'+m[1]+'">'+val(m[1],m[3])+'</span><small>'+m[2]+'</small></div><div class="meter"><b data-m="'+m[1]+'" data-max="'+m[4]+'"></b></div></div>';}
+  h+='</div><div class="status"><span class="dot" data-k="obddot"></span><div class="grow"><b data-k="obdtag">'+esc(obdChip())+'</b><div class="small muted ell" data-k="obdsrc">'+esc(obdLine())+'</div></div>'+B('obd',st.obd?'Desconectar':'Conectar',st.obd?'Aura.obdOff()':'Aura.drawer(true)',st.obd?'':'pri')+B(isFull?'exit':'full','','Aura.full('+(!isFull)+')','',' aria-label="Tela cheia"')+'</div></div>';
+  return h+drawer('Conectar OBD2','<div class="sec devs" id="devs">'+devList()+'</div>'+B('search','Atualizar lista','Aura.devs()')+B('bt','Parear no Bluetooth do Android',"Aura.launch('bluetooth')")+
+   '<details><summary>Ponte Wi-Fi (recomendado)</summary><p>1. No celular, abra o AD Car Ponte e ligue o roteador Wi-Fi. 2. Conecte a central nesse Wi-Fi. 3. Toque em "AD Car Ponte". O Aura acha o celular pelo gateway do Wi-Fi (porta 35000). IP manual: Ajustes › OBD2.</p></details>'+
+   '<details><summary>Sem valores?</summary><p>Valores só aparecem quando o carro responde ao ELM327. Com a ignição desligada o adaptador responde, mas o carro não: o status mostra "sem resposta". Nada é simulado.</p></details>');
+}
+function devList(){if(!N)return '<p class="note">Prévia: a lista aparece no APK.</p>';var l=json(call('getPairedObd'),[]);
+  return l.map(function(d){return B(d.address==='ponte'?'wifi':'bt',esc(d.name)+(d.address==='ponte'?'':'<small class="muted"> · '+esc(d.address)+'</small>'),"Aura.obdConnect('"+esc(d.address)+"')",d.address==='ponte'?'pri':'');}).join('')||'<p class="note">Nenhum adaptador pareado.</p>';}
+
+/* ---------- settings hub ---------- */
+var TABS=[['layout','Tela inicial','grid'],['garage','Veículo','car'],['obd','OBD2 e Ponte','obd'],['mapcfg','Mapa e rotas','maps'],['updates','Atualizações','down'],['about','Sobre','info']];
+var COLORS=['#00e5ff','#3be0b4','#5b9bff','#c9a227','#ff8a3d','#e0115f','#8a8f98','#9d7bff'];
+function buildSettings(){
+  var t='<nav class="tabs">';for(var i=0;i<TABS.length;i++){var x=TABS[i];t+=B(x[2],x[1],"Aura.tab('"+x[0]+"')",opts.tab===x[0]?'on':'');}t+='</nav>';
+  return '<div class="settings">'+t+'<div class="pane" id="pane">'+paneHTML()+'</div></div>';
+}
+function paneHTML(){return opts.tab==='garage'?paneGarage():opts.tab==='obd'?paneObd():opts.tab==='mapcfg'?paneMap():opts.tab==='updates'?paneUpdates():opts.tab==='about'?paneAbout():paneLayout();}
+function thumb(l){var cells=l===2?'<i></i><i></i>':l===4?'<i></i><i></i><i></i><i></i>':l==='m2'?'<i style="grid-row:span 2"></i><i></i><i></i>':'<i></i><i></i><i></i>';
+  var cols=l===2?'1.3fr 1fr':l===4?'1fr 1fr':l==='m2'?'1.6fr 1fr':'1fr 1.4fr 1fr';return '<div class="thumb" style="grid-template-columns:'+cols+(l===4||l==='m2'?';grid-template-rows:1fr 1fr':'')+'">'+cells+'</div>';}
+function slider(label,key,min,max,step,fmt){var v=Number(opts[key]);return '<div class="slider"><div class="row"><span>'+label+'</span><b id="sv_'+key+'">'+fmt(v)+'</b></div><input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+v+'" oninput="Aura.slide(\''+key+'\',this.value)"></div>';}
+var SLFMT={uiScale:function(v){return Math.round(v*100)+'%';},spacing:function(v){return v+' px';},safeTop:function(v){return v<0?'auto (0 px)':v+' px';},safeBottom:function(v){return v+' px';}};
+function paneLayout(){
+  var n=slotsFor(opts.layout),s='';
+  for(var i=0;i<n;i++){var o='';for(var w in WIDGETS)o+='<option value="'+w+'"'+(opts.screens[i]===w?' selected':'')+'>'+WIDGETS[w]+'</option>';
+    s+='<div class="slot"><span class="k">'+(i+1)+'</span><select onchange="Aura.slot('+i+',this.value)" aria-label="Divisão '+(i+1)+'">'+o+'</select>'+B('up','','Aura.move('+i+',-1)','',' aria-label="Subir"'+(i===0?' disabled':''))+B('dn','','Aura.move('+i+',1)','',' aria-label="Descer"'+(i===n-1?' disabled':''))+'</div>';}
+  var lay='';['m2',2,3,4].forEach(function(l){lay+='<button type="button" class="'+(opts.layout===l?'on':'')+'" onclick="Aura.layout('+(l==='m2'?"'m2'":l)+')">'+thumb(l)+({m2:'Mapa + 2',2:'Mapa + 1',3:'3 colunas',4:'4 quadros'})[l]+'</button>';});
+  var sw='';COLORS.forEach(function(c){sw+='<button type="button" style="background:'+c+'" class="'+(opts.color===c?'on':'')+'" onclick="Aura.set(\'color\',\''+c+'\')" aria-label="Cor '+c+'"></button>';});
+  var ins=insets?'Barra do Android: topo '+(insets.top||0)+' px, base '+(insets.bottom||0)+' px. O Aura começa '+(insets.viewTop||0)+' px abaixo do topo da tela.':'Sem informação nativa de barras (prévia).';
+  return '<section class="card"><h2>Tela inicial</h2><p class="d">Como no Android Auto e no CarPlay: o mapa grande e poucos cards. Toque no ícone de expandir de um card para abri-lo em tela inteira.</p>'+
+    '<div class="lay">'+lay+'</div><div class="sub">O QUE APARECE EM CADA DIVISÃO</div>'+s+
+    '<div class="row" style="margin-top:14px">'+B('','Restaurar padrão','Aura.resetLayout()')+B('home','Ver painel',"Aura.go('home')",'pri grow')+'</div></section>'+
+    '<section class="card"><h2>Tamanho</h2><div class="sub">ÁREA DE TOQUE</div><div class="seg">'+['compacto','conforto','extra'].map(function(p){return '<button class="'+(opts.aaPreset===p?'on':'')+'" onclick="Aura.set(\'aaPreset\',\''+p+'\')">'+({compacto:'Compacto · 68',conforto:'Padrão AA · 76',extra:'Grande · 88'})[p]+'</button>';}).join('')+'</div>'+
+    '<div style="margin-top:18px">'+slider('Tamanho do texto','uiScale',.85,1.55,.05,SLFMT.uiScale)+slider('Espaço entre cards','spacing',8,20,1,SLFMT.spacing)+'</div>'+
+    '<div class="sub">COR DE DESTAQUE</div><div class="swatches">'+sw+'</div></section>'+
+    '<section class="card"><h2>Barra do Android</h2><p class="d">'+esc(ins)+' O Aura não desenha cabeçalho próprio e nunca cobre a barra de status. Use as margens só se uma barra da central cobrir o Aura.</p>'+
+    slider('Margem superior','safeTop',-1,96,1,SLFMT.safeTop)+slider('Margem inferior','safeBottom',0,96,1,SLFMT.safeBottom)+'</section>';
+}
+var brandQ='',allBrands=false,FAV=['jeep','fiat','volkswagen','chevrolet','ford','toyota','honda','hyundai','renault','nissan','bmw','mercedes-benz','peugeot','citroen','kia','volvo','byd','gwm','audi','land-rover','mitsubishi','suzuki','chery','ram'];
+function brandGrid(){var B0=window.ADCAR_BRANDS||[],q=brandQ.toLowerCase();
+  var list=B0.filter(function(b){return q?b[0].toLowerCase().indexOf(q)>=0:(allBrands||FAV.indexOf(b[1])>=0);});
+  return list.slice(0,allBrands||q?400:40).map(function(b){return '<button type="button" class="'+(opts.makeSlug===b[1]?'on':'')+'" onclick="Aura.make(\''+b[1]+'\')">'+logoImg(b[1],'<span class="logo-fb">'+esc(b[0].slice(0,2))+'</span>')+'<span class="ell" style="max-width:100%">'+esc(b[0])+'</span></button>';}).join('')||'<p class="note">Nenhuma marca encontrada.</p>';}
+function paneGarage(){
+  return '<section class="card"><div class="hero">'+logoImg(opts.makeSlug)+'<div class="grow"><div class="lbl">Perfil do veículo</div><div class="num">'+esc(opts.make)+'</div></div></div>'+
+   '<div class="two" style="margin-top:.8rem"><label><div class="lbl" style="margin-bottom:.3rem">Modelo</div><input style="width:100%" value="'+esc(opts.model)+'" maxlength="50" oninput="Aura.car(\'model\',this.value)"></label>'+
+   '<label><div class="lbl" style="margin-bottom:.3rem">Ano</div><input style="width:100%" value="'+esc(opts.year)+'" maxlength="4" inputmode="numeric" oninput="Aura.car(\'year\',this.value)"></label></div>'+
+   '<p class="note">A marca muda só a identidade visual. Não altera protocolo CAN nem ativa integração com a MCU da central. Dados do motor vêm apenas do OBD2.</p></section>'+
+   '<section class="card"><div class="row"><div class="grow"><div class="lbl" style="color:var(--amber-soft)">Catálogo</div><h2 style="margin:0">Escolha a montadora</h2></div><span class="tag">'+(window.ADCAR_BRANDS||[]).length+' marcas</span></div>'+
+   '<div class="row" style="margin-top:.7rem"><input class="grow" placeholder="Buscar montadora" value="'+esc(brandQ)+'" oninput="Aura.brandQ(this.value)">'+B('',allBrands?'Ver favoritas':'Ver todas','Aura.allBrands()')+'</div>'+
+   '<div class="brands" id="brands">'+brandGrid()+'</div><p class="note">Logos: car-logos-dataset (MIT); marcas pertencem aos titulares. Precisa de internet na primeira exibição; depois fica salvo na central.</p></section>';
+}
+function paneObd(){
+  var host=N?(call('getPonteHost')||''):'';
+  return '<section class="card"><h2>OBD2 e Ponte</h2><p class="d">Estado atual: <b data-k="obdtag">'+esc(obdChip())+'</b> · <span data-k="obdsrc">'+esc(obdLine())+'</span></p>'+
+   '<div class="devs">'+devList()+'</div>'+(st.obd||st.obdState!=='idle'?B('close','Desconectar e esquecer','Aura.obdOff()'):'')+'</section>'+
+   '<section class="card"><div class="lbl">Ponte Wi-Fi · endereço do celular</div><p class="d">Automático: gateway do Wi-Fi atual ('+esc(host||'sem Wi-Fi')+'). Preencha só se o celular não for o roteador.</p>'+
+   '<div class="row"><input id="ponteHost" class="grow" placeholder="ex.: 192.168.43.1 (vazio = automático)" inputmode="decimal">'+B('','Salvar','Aura.ponteHost()','pri')+'</div>'+
+   '<p class="note">A Ponte só aparece como conectada depois de o carro responder pelo Wi-Fi. Porta TCP 35000, aceita apenas rede local.</p></section>';
+}
+function paneMap(){
+  return '<section class="card"><h2>Mapa e rotas</h2><div class="kv"><span>Fonte do mapa</span><div class="seg" style="width:16rem"><button class="'+(opts.mapSource!=='offline'?'on':'')+'" onclick="Aura.set(\'mapSource\',\'online\')">Online</button><button class="'+(opts.mapSource==='offline'?'on':'')+'" onclick="Aura.set(\'mapSource\',\'offline\')">Offline</button></div></div>'+
+   '<div class="kv"><span>Mapa offline (MBTiles raster)</span><b>'+(st.mapReady?'Importado':'Não importado')+'</b></div>'+
+   '<div class="kv"><span>BRouter (rotas offline)</span><b>'+(app.brouter?'Conectado':'Não instalado / sem serviço')+'</b></div>'+
+   '<div class="kv"><span>Casa</span><b>'+(opts.home?fmtNum(opts.home.lat,4)+', '+fmtNum(opts.home.lon,4):'Não definida')+'</b></div>'+
+   '<div class="row" style="margin-top:.8rem">'+B('down','Importar MBTiles','Aura.importMap()','pri')+B('star','Salvar posição como Casa','Aura.setHome()')+'</div></section>'+
+   '<section class="card"><div class="lbl">Chave MapTiler (opcional)</div><p class="d">Com uma chave própria, o mapa online usa o estilo escuro da MapTiler.</p><div class="row"><input id="mtk" class="grow" value="'+esc(opts.maptilerKey)+'" placeholder="chave">'+B('','Salvar',"Aura.set('maptilerKey',document.getElementById('mtk').value.trim())")+'</div>'+
+   '<details><summary>Mapa offline do estado do RJ</summary><p>Rotas: BRouter com o segmento W45_S25 cobre o RJ inteiro. Desenho do mapa offline: um arquivo MBTiles raster gerado a partir de dados OSM (ex.: extrato Geofabrik do Sudeste processado no PC), nunca baixando tiles em massa do servidor público do OpenStreetMap.</p></details></section>';
+}
+function paneUpdates(){
+  var st_=upd.stage,title=st_==='checking'?'Consultando…':st_==='downloading'?'Baixando':st_==='installing'?'Confirme a instalação':st_==='permission'?'Autorize a instalação':st_==='downloaded'?'APK pronto':st_==='error'?'Atualização interrompida':upd.available?'Versão '+upd.version+' disponível':upd.checked?'Você está em dia':'Verificação pendente';
+  return '<section class="card"><div class="row"><div class="badge" style="width:3.4rem;height:3.4rem;border-radius:1rem;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center">'+I('down')+'</div>'+
+   '<div class="grow"><h2 style="margin:0">'+esc(title)+'</h2><div class="small muted">Instalada: '+esc(app.versionName)+(app.versionCode?' (vc '+app.versionCode+')':'')+'</div></div>'+
+   (upd.url&&st_!=='downloading'?B('down',st_==='downloaded'||st_==='permission'?'Instalar APK':'Baixar e instalar',st_==='downloaded'||st_==='permission'?'Aura.install()':'Aura.download()','pri'):B('search','Verificar agora','Aura.check()','pri',st_==='checking'||st_==='downloading'?' disabled':''))+'</div>'+
+   '<div class="ota-bar"><b style="width:'+Math.max(0,Math.min(100,upd.percent))+'%"></b></div><div class="small muted">'+esc(upd.message)+'</div>'+
+   (upd.notes?'<div class="card" style="background:var(--c-high);margin-top:.8rem"><div class="lbl">O que mudou</div><div class="small" style="white-space:pre-line;line-height:1.5;margin-top:.4rem">'+esc(upd.notes)+'</div></div>':'')+
+   '<p class="note">Fonte oficial: github.com/andredeveza/adcar-releases. O APK é conferido (SHA-256, pacote e versão maior) antes de abrir o instalador do Android. A atualização mantém dados e configurações.</p></section>'+
+   '<section class="card"><div class="lbl">Componentes</div><div class="kv"><span>AD Car Ponte (celular)</span><b>'+(st.obdSource==='ponte'&&st.obd?'Conectada':'Instalar no celular · 1.0.0')+'</b></div><div class="kv"><span>BRouter</span><b>'+(app.brouter?'Conectado':'Não detectado')+'</b></div><div class="kv"><span>Mapa offline</span><b>'+(st.mapReady?'Importado':'Não importado')+'</b></div>'+
+   '<p class="note">A central procura atualização sozinha 20 s depois de ligar e só avisa; a instalação sempre pede sua confirmação.</p></section>';
+}
+function paneAbout(){var d=json(call('getDeviceProfile'),{});
+  return '<section class="card"><h2>AD Car Aura '+esc(app.versionName)+'</h2><p class="d">Launcher para central Android. Não substitui câmera de ré, rádio original, comandos de volante, CAN-box/MCU nem firmware.</p>'+
+   '<div class="kv"><span>Central</span><b>'+esc((d.headUnitManufacturer||'')+' '+(d.headUnitModel||''))+'</b></div><div class="kv"><span>Android</span><b>'+esc(d.androidVersion||'—')+'</b></div>'+
+   '<div class="kv"><span>Tela</span><b>'+(d.screenPxWidth?d.screenPxWidth+'×'+d.screenPxHeight+' px':'—')+' · janela '+window.innerWidth+'×'+window.innerHeight+'</b></div><div class="kv"><span>Interface</span><b>'+VERSION_UI+' · Aura In-Cabin OS</b></div>'+
+   '<div class="row" style="margin-top:.8rem">'+B('gear','Configurações do Android',"Aura.launch('settings')")+'</div></section>';}
+
+/* ---------- render ---------- */
+function render(){
+  if(map){try{map.remove();}catch(e){}map=null;mapLayers={};}
+  applySizing();renderHead();renderDock();
+  var s=opts.screen,v=$('view');
+  v.innerHTML=s==='map'?buildMap():s==='media'?buildMedia():s==='vehicle'?buildVehicle():s==='settings'?buildSettings():buildHome();
+  $('exitFull').innerHTML=I('exit')+'<span>Sair da tela cheia</span>';
+  if(DEMO||!N)v.insertAdjacentHTML('beforeend','<div class="demo-flag">'+(DEMO?'DEMONSTRAÇÃO · dados fictícios':'MODO WEB · GPS real quando autorizado')+' · <a href="'+(DEMO?'#':'#demo')+'" onclick="location.hash=this.getAttribute(\'data-hash\');location.reload();return false" data-hash="'+(DEMO?'':'demo')+'">'+(DEMO?'Sair':'Testar demonstração')+'</a></div>');
+  fitCards();
+  if($('leaf'))mountMap();
+  live();paintVol();
+  var b2=$('volBar2');if(b2)b2.style.width=(volPct||0)+'%';
+}
+/* Cards measure their slot and switch to compact layouts instead of overflowing. */
+function fitCards(){
+  var c=document.querySelectorAll('#view .home>.card');
+  for(var i=0;i<c.length;i++){var el=c[i],h=el.offsetHeight,base=el.className.replace(/\s*(short|tall|compact)\b/g,'');
+    var cls=/mapcard/.test(base)?(h<380?' compact':''):(h<250?' short':'')+(/media/.test(base)&&h>430&&el.offsetWidth<560?' tall':'');
+    el.className=base+cls;}
+}
+/* Update values in place (keeps the map and inputs intact). */
+function setK(k,txt){var l=document.querySelectorAll('[data-k="'+k+'"]');for(var i=0;i<l.length;i++)if(l[i].textContent!==txt)l[i].textContent=txt;}
+function live(){
+  var v=speedVal();setK('speed',has(v)?String(Math.round(v)):'—');setK('spdsrc',spdTag());
+  var a=document.querySelectorAll('[data-k="arc"]');for(var i=0;i<a.length;i++){a[i].setAttribute('stroke-dasharray',arc((v||0)/180));a[i].style.opacity=has(v)&&v>=1?1:0;}
+  for(i=0;i<MOTOR.length;i++){setK(MOTOR[i][1],val(MOTOR[i][1],MOTOR[i][3]));var mm=document.querySelectorAll('[data-m="'+MOTOR[i][1]+'"]');for(var j=0;j<mm.length;j++){var x=st[MOTOR[i][1]];mm[j].style.width=(st.obd||DEMO)&&has(x)?Math.max(0,Math.min(100,100*x/Number(mm[j].getAttribute('data-max'))))+'%':'0';}}
+  setK('tripkm',fmtNum(trip.km,1));setK('tripmin',fmtDur((Date.now()-trip.start)/1000));setK('tripavg',fmtNum(trip.moving>60?trip.km/(trip.moving/3600):null,0));
+  setK('obdtag',obdChip());setK('obdsrc',obdLine());
+  var dots=document.querySelectorAll('[data-k="obddot"]');for(i=0;i<dots.length;i++)dots[i].className='dot '+(st.obd?'ok':st.obdState==='error'?'err':st.obdState==='idle'?'':'warn');
+  liveMedia();
+  var dg=$('dotGps');if(dg)dg.className='sdot '+(st.gps?'ok':'warn');var dob=$('dotObd');if(dob)dob.className='sdot '+(st.obd?'ok':st.obdState==='idle'?'':'warn');
+  if(weather){setK('wxt',fmtNum(weather.t,0)+'°');setK('wxd',weather.d);}
+}
+function posNow(){var p=md.positionMs||0;if(md.playing&&md.at)p+=Date.now()-md.at;return md.durationMs?Math.min(p,md.durationMs):p;}
+function liveMedia(){
+  setK('mtitle',mTitle());setK('martist',mArtist());setK('msrc',srcName());
+  var p=posNow(),pct=md.durationMs>0?100*p/md.durationMs:0;
+  var bars=document.querySelectorAll('[data-k="mprog"]');for(var i=0;i<bars.length;i++)bars[i].style.width=pct+'%';
+  setK('mpos',fmtTime(p));setK('mdur',fmtTime(md.durationMs));
+  var pl=document.querySelectorAll('[data-k="mplay"]');for(i=0;i<pl.length;i++){var want=md.playing?'pause':'play';if(pl[i].getAttribute('data-s')!==want){pl[i].setAttribute('data-s',want);pl[i].innerHTML=I(want);}}
+  var imgs=document.querySelectorAll('[data-k="mart"]');
+  for(i=0;i<imgs.length;i++){var im=imgs[i],ok=typeof md.cover==='string'&&(/^(data:image\/(png|jpeg|webp);base64,|https:\/\/)/i).test(md.cover);
+    if(ok){if(im.getAttribute('src')!==md.cover)im.src=md.cover;im.style.display='block';}else{im.removeAttribute('src');im.style.display='none';}}
+}
+
+/* ---------- native callbacks ---------- */
+window.ADCar={
+  receiveState:function(raw){var o=json(raw,null);if(!o)return;var wasObd=st.obd,hadFix=has(st.lat);
+    for(var k in st)if(o.hasOwnProperty(k))st[k]=o[k];
+    trackTrip();live();if(map){drawMe();if(route)refreshMapOverlays();}
+    if(!hadFix&&has(st.lat))loadWeather();
+    if(wasObd!==st.obd&&opts.screen==='vehicle'){var d=$('devs');if(d)d.innerHTML=devList();}},
+  receiveMedia:function(raw){var o=json(raw,null);if(!o)return;md.available=!!o.available;md.permission=o.permission!==false;
+    md.title=o.title||'';md.artist=o.artist||'';md.album=o.album||'';md.source=o.source||'';md.cover=o.cover||'';md.playing=!!o.playing;
+    md.durationMs=Number(o.durationMs)||0;md.positionMs=Number(o.positionMs)||0;md.at=Date.now();liveMedia();},
+  receiveUpdate:function(raw){var u=json(raw,{});upd.checked=true;upd.version=u.version||'';upd.notes=u.notes||'';upd.url=u.url||'';upd.available=!!u.url;
+    upd.stage=u.error?'error':u.url?'available':'current';upd.message=u.status||'';upd.percent=0;
+    if(u.available&&opts.screen!=='settings')toast('Atualização '+upd.version+' disponível · Ajustes › Atualizações');renderHead();if(opts.tab==='updates'&&opts.screen==='settings')rePane();},
+  receiveUpdateProgress:function(raw){var p=json(raw,{});upd.stage=p.stage||'error';upd.message=p.message||'';upd.percent=Number(p.percent)||0;if(opts.tab==='updates'&&opts.screen==='settings')rePane();else if(upd.stage==='error')toast(upd.message);},
+  routeResult:function(raw){var d=json(raw,{});
+    if(d.ok&&d.coords&&d.coords.length>1&&pendingDest){setRoute(d.coords,pendingDest,'BRouter offline',d.distM||null,d.timeS||null,null);toast('Rota offline calculada pelo BRouter');}
+    else if(pendingDest){toast('BRouter: '+(d.error||'sem rota')+'. Tentando rota online…');osrm(pendingDest);}},
+  onMapImport:function(msg){toast(msg);st.mapReady=true;if(opts.screen==='settings')rePane();}
+};
+function rePane(){var p=$('pane');if(!p)return;var y=p.scrollTop;p.innerHTML=paneHTML();p.scrollTop=y;}
+function trackTrip(){
+  if(!st.gps||!has(st.lat))return;var now=Date.now();
+  if(trip.last){var d=hav(trip.last.lat,trip.last.lon,st.lat,st.lon),dt=(now-trip.last.t)/1000;
+    if(d>8&&d<dt*70&&(st.speed||0)>4){trip.km+=d/1000;trip.moving+=dt;trip.last={lat:st.lat,lon:st.lon,t:now};
+      try{localStorage.setItem('auraTrip',JSON.stringify({km:trip.km,start:trip.start,moving:trip.moving}));}catch(e){}}
+    else if(d>=8)trip.last={lat:st.lat,lon:st.lon,t:now};}
+  else trip.last={lat:st.lat,lon:st.lon,t:now};
+}
+var WMO={0:'Céu limpo',1:'Poucas nuvens',2:'Parcialmente nublado',3:'Nublado',45:'Neblina',48:'Neblina',51:'Garoa',53:'Garoa',55:'Garoa',61:'Chuva fraca',63:'Chuva',65:'Chuva forte',80:'Pancadas',81:'Pancadas',82:'Pancadas fortes',95:'Trovoadas',96:'Trovoadas',99:'Trovoadas'};
+function loadWeather(){if(!has(st.lat)||Date.now()-weatherAt<900000)return;weatherAt=Date.now();
+  get('https://api.open-meteo.com/v1/forecast?latitude='+st.lat.toFixed(3)+'&longitude='+st.lon.toFixed(3)+'&current=temperature_2m,weather_code&timezone=auto',function(r){
+    if(r&&r.current){weather={t:r.current.temperature_2m,d:WMO[r.current.weather_code]||'—'};live();}},function(){weatherAt=0;});}
+
+/* ---------- public actions (onclick) ---------- */
+window.Aura={
+  go:function(s,tab,focus){if(s==='settings'&&tab)opts.tab=tab;opts.screen=s;drawerOpen=false;if(s==='home'||s==='settings')isFull=false;save();render();if(focus){var q=$('q');if(q)setTimeout(function(){q.focus();},50);}},
+  tab:function(t){opts.tab=t;save();render();},
+  drawer:function(o){drawerOpen=!!o;var d=$('drawer');if(d)d.className='drawer'+(o?' open':'');if(o&&opts.screen==='vehicle'){var l=$('devs');if(l)l.innerHTML=devList();}},
+  full:function(o){isFull=!!o;applySizing();render();},
+  set:function(k,v){opts[k]=v;save();if(k==='color'&&route)drawRoute();render();},
+  slide:function(k,v){opts[k]=Number(v);save();var l=$('sv_'+k);if(l)l.textContent=SLFMT[k](Number(v));applySizing();},
+  layout:function(l){opts.layout=l;save();render();},
+  slot:function(i,w){var j=opts.screens.indexOf(w);if(j>=0&&j!==i)opts.screens[j]=opts.screens[i];opts.screens[i]=w;save();render();},
+  move:function(i,d){var j=i+d;if(j<0||j>=slotsFor(opts.layout))return;var t=opts.screens[i];opts.screens[i]=opts.screens[j];opts.screens[j]=t;save();render();},
+  resetLayout:function(){opts.layout='m2';opts.screens=['mapa','midia','velocimetro','motor'];opts.uiScale=1;opts.spacing=12;opts.aaPreset='conforto';opts.color='#00e5ff';save();render();toast('Layout padrão restaurado');},
+  key:function(c){if(!N){toast('Prévia: no APK controla o player do Android');return;}call('mediaKey',c);if(c===85){md.playing=!md.playing;md.positionMs=posNow();md.at=Date.now();liveMedia();}setTimeout(pollMedia,700);},
+  launch:function(k){if(!N){toast('Prévia: no APK abre '+k);return;}call('launchApp',k);},
+  vol:function(d){if(!N){toast('Prévia: volume no APK');return;}call('changeVolume',d);setTimeout(function(){readVol();var b2=$('volBar2');if(b2)b2.style.width=(volPct||0)+'%';},250);},
+  zoom:function(d){if(map)map.setZoom(map.getZoom()+d);},
+  recenter:function(){follow=true;var r=$('recBtn');if(r)r.className='btn icon pri';if(map&&has(st.lat))map.setView([st.lat,st.lon],16);else toast('Sem posição do GPS ainda');},
+  search:doSearch,
+  pick:function(i){var r=lastResults[i];if(!r)return;$('results').style.display='none';routeTo({name:r.display_name.split(',')[0],lat:+r.lat,lon:+r.lon});},
+  clearRoute:function(){route=null;pendingDest=null;drawRoute();refreshMapOverlays();},
+  setHome:function(){if(!has(st.lat)){toast('Sem posição do GPS');return;}opts.home={lat:st.lat,lon:st.lon};save();toast('Casa salva');render();},
+  goHome:function(){if(opts.home)routeTo({name:'Casa',lat:opts.home.lat,lon:opts.home.lon});},
+  radio:function(){if(!N){toast('Prévia: no APK abre o rádio da central');return;}var r=json(call('openRadio',fm.selected||''),{});if(!r.ok){toast(r.message||'Rádio não encontrado');Aura.fmScan();}},
+  fmScan:function(){if(!N){fm.message='Detecção disponível no APK.';}else{var r=json(call('getRadioApps'),{});fm.apps=r.apps||[];fm.selected=r.selected||fm.selected;fm.message=r.message||'';}
+    var a=$('fmInfo');if(a)a.textContent=fm.message;var l=$('fmList');if(l)l.innerHTML=fmList();},
+  fmPick:function(p){var r=json(call('chooseRadio',p),{});if(r.ok){fm.selected=r.package;fm.message='Rádio escolhido: '+r.label;}else fm.message=r.message||'Indisponível';Aura.fmScan();},
+  mediaAccess:function(){if(N)call('enableMediaAccess');else toast('Prévia: no APK abre a permissão');},
+  devs:function(){var l=$('devs');if(l)l.innerHTML=devList();},
+  obdConnect:function(a){if(!N)return;call('connectObd',a);toast(a==='ponte'?'Conectando à Ponte pelo Wi-Fi…':'Conectando ao adaptador Bluetooth…');Aura.drawer(false);},
+  obdOff:function(){call('disconnectObd');render();},
+  ponteHost:function(){var v=($('ponteHost')||{}).value||'';v=v.trim();if(v&&!/^\d{1,3}(\.\d{1,3}){3}$/.test(v)){toast('IP inválido');return;}call('setPonteHost',v);toast(v?'IP da Ponte salvo':'Ponte em modo automático');rePane();},
+  make:function(slug){var b=(window.ADCAR_BRANDS||[]).filter(function(x){return x[1]===slug;})[0];if(!b)return;opts.make=b[0];opts.makeSlug=b[1];opts.model='';saveCar();render();},
+  car:function(k,v){opts[k]=k==='year'?String(v).replace(/\D/g,'').slice(0,4):String(v).slice(0,50);saveCar();renderHead();},
+  brandQ:function(q){brandQ=String(q).slice(0,40);var g=$('brands');if(g)g.innerHTML=brandGrid();},
+  allBrands:function(){allBrands=!allBrands;rePane();},
+  importMap:function(){if(!N){toast('Importação no APK');return;}call('importMbtiles');},
+  check:function(){if(!N){upd.stage='error';upd.message='A consulta funciona no APK instalado.';rePane();return;}upd.stage='checking';upd.message='Consultando o manifesto oficial…';rePane();call('checkUpdates');},
+  download:function(){if(!upd.url)return;upd.stage='downloading';upd.message='Preparando download…';upd.percent=0;rePane();call('downloadUpdate',upd.url);},
+  install:function(){call('installDownloadedUpdate');},
+  resetTrip:function(){trip={km:0,start:Date.now(),last:null,moving:0};try{localStorage.removeItem('auraTrip');}catch(e){}live();}
+};
+function saveCar(){save();call('saveVehicleProfile',JSON.stringify({make:opts.make,makeSlug:opts.makeSlug,model:opts.model,year:opts.year,logo:brandUrl(opts.makeSlug)}));}
+function pollState(){var s=call('getTelemetry');if(s)window.ADCar.receiveState(s);}
+function pollMedia(){var m=call('getMediaState');if(m)window.ADCar.receiveMedia(m);}
+
+/* ---------- start ---------- */
+if(N){app=json(call('getAppInfo'),app)||app;insets=json(call('getInsets'),null);pollState();pollMedia();readVol();}
+render();
+/* Browser/PWA mode: real GPS, never fabricated car telemetry. Requires secure context
+   (HTTPS, localhost or compatible file:// environments) and user location permission. */
+if(!N&&!DEMO&&navigator.geolocation){
+  var lastBrowserGps=null;
+  try{navigator.geolocation.watchPosition(function(pos){
+    var c=pos.coords, sp=has(c.speed)&&c.speed>=0?c.speed*3.6:null;
+    /* Derive speed only when credible samples are available, not from a single fix. */
+    if(sp===null&&lastBrowserGps){var dt=(pos.timestamp-lastBrowserGps.at)/1000;
+      if(dt>1&&dt<45&&has(c.accuracy)&&c.accuracy<45){var dist=hav(lastBrowserGps.lat,lastBrowserGps.lon,c.latitude,c.longitude);if(dist>Math.max(8,c.accuracy)&&dist/dt<55)sp=dist/dt*3.6;}}
+    lastBrowserGps={lat:c.latitude,lon:c.longitude,at:pos.timestamp};
+    window.ADCar.receiveState(JSON.stringify({gps:true,speed:sp,lat:c.latitude,lon:c.longitude,
+      alt:has(c.altitude)?c.altitude:null,bearing:has(c.heading)?c.heading:null}));
+    if(!weather)loadWeather();
+  },function(err){if(err.code===1)toast('GPS não autorizado. Ative a localização no navegador para ver sua posição.');
+       else if(err.code===2)toast('GPS indisponível neste dispositivo.');
+  },{enableHighAccuracy:true,maximumAge:3000,timeout:25000});}catch(e){toast('GPS indisponível neste ambiente.');}
+}
+if(N){setInterval(pollState,2000);setInterval(pollMedia,3000);setInterval(readVol,2500);setInterval(function(){app.brouter=(json(call('getAppInfo'),{})||{}).brouter||false;},15000);}
+setInterval(tick,5000);setInterval(function(){if(md.playing)liveMedia();live();},1000);
+window.addEventListener('resize',function(){applySizing();fitCards();});
+if(DEMO){loadWeather();}
+})();
+</script>
+</body></html>
