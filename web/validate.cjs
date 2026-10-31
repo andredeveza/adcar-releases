@@ -5,7 +5,7 @@ const html = fs.readFileSync('web/index.html', 'utf8');
 assert.ok(html.startsWith('<!doctype html>'), 'Sem doctype');
 for (const id of ['app', 'rail', 'view', 'toast']) assert.ok(html.includes('id="' + id + '"'), 'Elemento ausente: ' + id);
 assert.ok(html.includes("var VERSION_UI='2.8.1'"), 'Versão incorreta');
-const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/gi)];
+const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 assert.ok(scripts.length >= 3, 'Scripts de mapa, marcas e Aura ausentes');
 scripts.forEach((x,i) => new vm.Script(x[1], {filename:'aura-inline-'+i+'.js'}));
 assert.ok(html.includes('window.ADCar') && html.includes('window.ADNative'), 'Interface e ponte esperadas não referenciadas');
