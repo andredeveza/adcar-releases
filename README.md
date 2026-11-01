@@ -30,3 +30,11 @@ Se aparecer erro de instalação, **não desinstale a versão atual imediatament
 ### Web de demonstração
 
 O diretório `web/` contém uma prévia experimental 2.8.1, diferente do APK Android 2.8.0. Ela não substitui o APK e não fornece ponte Android `ADNative` quando acessada em navegador convencional.
+
+## Candidato 2.8.1 (teste manual; OTA ainda 2.8.0)
+
+- [Baixar AD-Car-Aura-2.8.1-RC.apk](AD-Car-Aura-2.8.1-RC.apk) — **APK assinado, mas ainda não validado na central KOWAN**.
+- [Ficha de integridade e limitações](aura-rc-2.8.1.json).
+- [Código-fonte da integração](https://github.com/andredeveza/Renegade-Cockpit/tree/aura-2.8.1-integracoes).
+- Telefone: discador por ação Android; áudio das ligações depende HFP/OEM. Microfone: teste de nível sem armazenar áudio; voz depende de reconhecedor no sistema. Waze: iframe de visualização de trânsito (sem navegação integrada).
+- **Não atualizar** `aura-latest.json` para 2.8.1 até o usuário confirmar Ponte, GPS, mídia, telefone, microfone e mapa na central; versão estável fica 2.8.0.

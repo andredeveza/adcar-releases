@@ -1,0 +1,14 @@
+{
+  "versionName": "2.8.1-rc",
+  "versionCode": 17,
+  "packageName": "br.com.adcomintegrada.adcar.aura",
+  "apk": "AD-Car-Aura-2.8.1-RC.apk",
+  "sha256": "c2fb0789fa57a6cd3e7f86d610206680ac391640fa956b6b6d4f442e0f58878d",
+  "sizeBytes": 208388,
+  "channel": "candidato",
+  "status": "não promovido a OTA",
+  "sourceRepository": "andredeveza/Renegade-Cockpit",
+  "sourceBranch": "aura-2.8.1-integracoes",
+  "sourceCommit": "ee68f87db4fc0a547137c06d5e86a1797978fbe3",
+  "notes": "Candidato de teste: teclado de telefone via discador Android, medidor de microfone por oito segundos, reconhecimento de voz dependente de serviço Android e iframe oficial Waze Live Map com GPS. O áudio HFP e a telefonia OEM não são controlados pelo Aura; não validado no veículo. App 2.8.0 da central preservado."
+}
