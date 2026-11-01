@@ -1,0 +1,32 @@
+name: Verificar assinatura da versão Android 2.7
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-aura-signing.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conferir SHA-256 publicado e assinatura de AD Car Aura 2.7
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,hashlib,pathlib
+          meta=json.loads(pathlib.Path('aura-latest.json').read_text())
+          p=pathlib.Path('AD-Car-Aura-2.7.0.apk')
+          assert meta['versionName']=='2.7.0'
+          actual=hashlib.sha256(p.read_bytes()).hexdigest()
+          assert actual==meta['sha256'], 'SHA256 publicado difere do APK'
+          assert p.stat().st_size==meta['sizeBytes']
+          print('SHA-256 e tamanho do APK 2.7.0 conferidos.')
+          PY
+          unzip -p AD-Car-Aura-2.7.0.apk META-INF/COCKPIT.RSA > /tmp/aura-prev-signer.der
+          keytool -printcert -file /tmp/aura-prev-signer.der | grep -E 'Owner:|SHA256:|SHA1:'
+          PREV=$(keytool -printcert -file /tmp/aura-prev-signer.der | grep 'SHA256:' | head -1 | sed 's/^[[:space:]]*SHA256:[[:space:]]*//')
+          NEXT='FC:E5:56:D5:89:7B:98:ED:90:FC:FE:F1:AA:28:9C:2C:D5:DE:F3:CB:99:A5:D5:85:85:7E:5C:6D:E2:F7:96:DD'
+          if [ "$PREV" = "$NEXT" ]; then echo 'ASSINATURA_COMPATIVEL_SIM'; else echo 'ASSINATURA_COMPATIVEL_NAO'; fi
