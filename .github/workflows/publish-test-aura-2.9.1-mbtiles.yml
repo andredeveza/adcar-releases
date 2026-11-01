@@ -1,0 +1,25 @@
+name: Publish AD Car Aura 2.9.1 MBTiles TEST (no OTA)
+on:
+  push:
+    paths: ['.github/workflows/publish-test-aura-2.9.1-mbtiles.yml']
+  workflow_dispatch:
+permissions: { contents: write }
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify compiled signed APK
+        env:
+          SOURCE: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-96a0-820e-bd05-3dd17dfdd349/raw?se=2026-11-01T02%3A38%3A22Z&sp=r&sv=2026-02-06&sr=b&scid=0166fc07-0b91-5342-9652-00da436ea51d&skoid=0a91ee30-885e-46c5-aa98-ae8c7359b1d8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-31T13%3A58%3A39Z&ske=2026-11-01T13%3A58%3A39Z&sks=b&skv=2026-02-06&sig=o1bHHyOqrHBxsYVvF9DGf/6uVck/cuBd5mRve0AvmqI%3D'
+        run: |
+          curl --fail --location --retry 3 --silent --show-error "$SOURCE" -o build.zip
+          unzip -q build.zip app-release.apk
+          echo '0138c1ac12fb6c581a18b77e9b77bcdb8b5a1568fa7fea4e826d9e449fff7632  app-release.apk' | sha256sum --check -
+          mv app-release.apk AD-Car-Aura-2.9.1-MBTiles-TEST.apk
+      - name: Publish test APK without changing stable update index
+        run: |
+          git config user.name adcar-release-bot
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AD-Car-Aura-2.9.1-MBTiles-TEST.apk
+          git diff --cached --quiet || (git commit -m 'Publish Aura 2.9.1 corrected MBTiles importer (TEST)' && git push)
