@@ -1,0 +1,58 @@
+name: Finalize RJ raster MBTiles continuous coverage
+on:
+  workflow_run:
+    workflows: ["Build Rio de Janeiro offline MBTiles raster"]
+    types: [completed]
+permissions:
+  contents: write
+jobs:
+  fill_and_verify:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: python -m pip install --quiet pillow==11.3.0
+      - name: Download generated MBTiles from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p output
+          gh release download rj-mbtiles-raster-2026-10-31 --pattern '*.mbtiles' --dir output
+      - name: Fill blank tiles and verify contiguous offline coverage
+        run: |
+          python - <<'PY'
+          import sqlite3,pathlib,math,io
+          from PIL import Image
+          f=next(pathlib.Path('output').glob('*.mbtiles'))
+          db=sqlite3.connect(str(f))
+          b=io.BytesIO();Image.new('RGB',(256,256),'#131c28').save(b,format='PNG')
+          blank=b.getvalue()
+          w,e=-45.33,-40.60;s,n=-23.50,-20.62
+          def merc(lon,lat):
+            x=(lon+180)/360;y=(1-math.asinh(math.tan(math.radians(lat)))/math.pi)/2
+            return x,y
+          gaps=0;tiles=0
+          for z in range(7,14):
+            x0=int(merc(w,n)[0]*(2**z));x1=int(merc(e,s)[0]*(2**z))
+            y0=int(merc(w,n)[1]*(2**z));y1=int(merc(e,s)[1]*(2**z))
+            for x in range(x0,x1+1):
+              for y in range(y0,y1+1):
+                tms=(2**z)-1-y
+                db.execute('INSERT OR IGNORE INTO tiles VALUES (?,?,?,?)',(z,x,tms,blank))
+            db.commit()
+            q=db.execute('select count(*) from tiles where zoom_level=?',(z,)).fetchone()[0]
+            print('ZOOM',z,'tiles=',q)
+            tiles+=q
+          assert db.execute('pragma integrity_check').fetchone()[0]=='ok'
+          assert tiles>=1500
+          print('TOTAL raster tiles',tiles,'MB',round(f.stat().st_size/1048576,1))
+          db.close()
+          PY
+      - name: Publish updated seamless MBTiles
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload rj-mbtiles-raster-2026-10-31 output/*.mbtiles --clobber
