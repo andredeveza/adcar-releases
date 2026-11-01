@@ -1,0 +1,91 @@
+name: Build Rio de Janeiro offline MBTiles raster
+on:
+  push:
+    paths:
+      - '.github/workflows/build-rj-state-mbtiles.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline OSM processing dependencies
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install -y osmium-tool
+          python -m pip install --quiet osmium==4.3.0 pillow==11.3.0
+      - name: Download licensed OSM vector extract (NOT tile.openstreetmap.org)
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 35 --progress-bar \
+            'https://download.geofabrik.de/south-america/brazil/sudeste-latest.osm.pbf' \
+            -o sudeste.osm.pbf
+          test "$(wc -c < sudeste.osm.pbf)" -gt 500000000
+          ls -lh sudeste.osm.pbf
+      - name: Extract State of Rio de Janeiro bbox and select vector roads and rivers
+        run: |
+          osmium extract --overwrite --strategy=complete_ways \
+            --bbox=-45.33,-23.50,-40.60,-20.62 \
+            sudeste.osm.pbf --output=rj-extract.osm.pbf
+          rm sudeste.osm.pbf
+          osmium tags-filter --overwrite --output=rj-network.osm.pbf \
+            rj-extract.osm.pbf 'w/highway' 'w/waterway' 'n/place'
+          rm rj-extract.osm.pbf
+          ls -lh rj-network.osm.pbf
+      - name: Render state raster tiles and package MBTiles
+        run: |
+          mkdir -p artifacts
+          python -u map-builder/create_rj_mbtiles.py rj-network.osm.pbf \
+            artifacts/ADCar_Rio_de_Janeiro_Estado_Offline_Raster.mbtiles
+          rm rj-network.osm.pbf
+      - name: Independently validate SQLite MBTiles
+        run: |
+          python - <<'PY'
+          import pathlib,sqlite3,hashlib
+          f=pathlib.Path('artifacts/ADCar_Rio_de_Janeiro_Estado_Offline_Raster.mbtiles')
+          assert f.exists() and f.stat().st_size>500000
+          conn=sqlite3.connect('file:'+str(f)+'?mode=ro',uri=True)
+          n=conn.execute('select count(*) from tiles').fetchone()[0]
+          print('Raster tiles:',n,'MB:',round(f.stat().st_size/1048576,1))
+          assert n>100
+          z=conn.execute('select min(zoom_level),max(zoom_level) from tiles').fetchone()
+          assert z==(7,13),z
+          payload=conn.execute('select tile_data from tiles order by zoom_level desc limit 1').fetchone()[0]
+          assert payload.startswith(b'\x89PNG\r\n\x1a\n')
+          assert conn.execute('pragma quick_check').fetchone()[0]=='ok'
+          print('SHA256',hashlib.sha256(f.read_bytes()).hexdigest())
+          conn.close()
+          PY
+      - name: Publish large map on a GitHub Release (no Git file limit)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > artifacts/MAPA_RJ_LEIA-ME.txt <<'EOF'
+          AD CAR AURA - MAPA OFFLINE DO ESTADO DO RIO DE JANEIRO
+          Formato: MBTiles RASTER SQLite/PNG, zoom nativo 7-13.
+          Conteudo: rede de ruas/rodovias/rios e nomes OSM, renderizacao leve para Android 8.
+          Uso: Aura > Ajustes > Mapa e rotas > Importar MBTiles; em seguida Offline.
+          Zooms maiores utilizam ampliacao dos tiles (nao ha detalhes nativos adicionais).
+          Area: retangulo geograficamente envolvente do estado RJ, incluindo pequena margem de fronteira.
+          Para rotas offline: instalar BRouter e baixar segmentos RD5 separadamente.
+          Dados: OpenStreetMap contributors © ODbL; extrato Geofabrik.
+          Nao foram baixados tiles dos servidores publicos OpenStreetMap.
+          Testes obrigatorios: verificar cobertura urbana e zoom na central, GPS, roteamento.
+          EOF
+          tag='rj-mbtiles-raster-2026-10-31'
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" \
+            --title 'AD Car · RJ Offline MBTiles raster (zoom 7-13)' \
+            --notes 'Mapa experimental de ruas e rodovias OSM para Android 8+. Importar no Aura. Fonte: dados OSM/Geofabrik, renderização própria. Mapa offline não inclui trânsito nem rotas BRouter.' \
+            --latest=false
+          gh release upload "$tag" artifacts/* --clobber
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ADCar-RJ-raster-MBTiles
+          path: artifacts/*
+          compression-level: 0
+          retention-days: 30
