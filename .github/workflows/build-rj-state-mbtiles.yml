@@ -20,22 +20,18 @@ jobs:
           sudo apt-get -qq update
           sudo apt-get -qq install -y osmium-tool
           python -m pip install --quiet osmium==4.3.0 pillow==11.3.0
-      - name: Download licensed OSM vector extract (NOT tile.openstreetmap.org)
+      - name: Download OSM Rio de Janeiro STATE extract (not tile downloads)
         run: |
           curl --fail --location --retry 3 --connect-timeout 35 --progress-bar \
-            'https://download.geofabrik.de/south-america/brazil/sudeste-latest.osm.pbf' \
-            -o sudeste.osm.pbf
-          test "$(wc -c < sudeste.osm.pbf)" -gt 500000000
-          ls -lh sudeste.osm.pbf
-      - name: Extract State of Rio de Janeiro bbox and select vector roads and rivers
+            'https://download.openstreetmap.fr/extracts/south-america/brazil/southeast/rio-de-janeiro-latest.osm.pbf' \
+            -o rj-state.osm.pbf
+          test "$(wc -c < rj-state.osm.pbf)" -gt 40000000
+          ls -lh rj-state.osm.pbf
+      - name: Extract vector roads, rivers and place names from RJ state
         run: |
-          osmium extract --overwrite --strategy=complete_ways \
-            --bbox=-45.33,-23.50,-40.60,-20.62 \
-            sudeste.osm.pbf --output=rj-extract.osm.pbf
-          rm sudeste.osm.pbf
           osmium tags-filter --overwrite --output=rj-network.osm.pbf \
-            rj-extract.osm.pbf 'w/highway' 'w/waterway' 'n/place'
-          rm rj-extract.osm.pbf
+            rj-state.osm.pbf 'w/highway' 'w/waterway' 'n/place'
+          rm rj-state.osm.pbf
           ls -lh rj-network.osm.pbf
       - name: Render state raster tiles and package MBTiles
         run: |
