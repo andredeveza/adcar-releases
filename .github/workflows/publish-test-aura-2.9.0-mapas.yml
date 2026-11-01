@@ -1,0 +1,38 @@
+name: Publish AD Car Aura 2.9.0 Mapas TEST (no OTA)
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-test-aura-2.9.0-mapas.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verified experimental build
+        env:
+          ARTIFACT_URL: 'https://sdmntprbrazilsouth.oaiusercontent.com/files/00000000-ee6c-820e-a4d5-3290c9b3ba7b/raw?se=2026-11-01T02%3A04%3A37Z&sp=r&sv=2026-02-06&sr=b&scid=75020bf6-dcb1-534f-a4fc-47f95614f0ed&skoid=0a91ee30-885e-46c5-aa98-ae8c7359b1d8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-31T10%3A49%3A17Z&ske=2026-11-01T10%3A49%3A17Z&sks=b&skv=2026-02-06&sig=f/DYgUcMk%2BDgXkZo82hwj5M/dsDvg3FVzmarEZiAlGs%3D'
+        run: |
+          curl -fLsS --retry 3 "$ARTIFACT_URL" -o artifact.zip
+          unzip -q artifact.zip app-release.apk
+          echo '386a9e6cc0df4b83f9cc676d3c22aaff90a696f68d12678edc10ef311904378a  app-release.apk' | sha256sum -c -
+          mv app-release.apk AD-Car-Aura-2.9.0-Mapas-TEST.apk
+      - name: Publish test file without updating the stable channel
+        run: |
+          cat > AD-Car-Aura-2.9.0-Mapas-TEST.md <<'EOF'
+          # AD Car Aura 2.9.0 — MAPAS (TESTE)
+          - versionCode 18, Android 8+, same package and signing as the project.
+          - Leaflet raster online and offline MBTiles with map errors visible.
+          - Waze Live iframe opens inside an ISOLATED Android WebView without ADNative.
+          - Google Maps Embed is optional and needs a valid API key/billing.
+          - BRouter requires installed app with routing segments, or online routing.
+          - No Rio de Janeiro offline map file included.
+          - Install manually for validation. Does NOT alter aura-latest.json stable channel.
+          - Inspect the OEM central in a parked car, including back/return, radio, microphone, GPS and Ponte.
+          EOF
+          git config user.name 'adcar-release-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AD-Car-Aura-2.9.0-Mapas-TEST.apk AD-Car-Aura-2.9.0-Mapas-TEST.md
+          git diff --staged --quiet || (git commit -m 'Publish isolated embedded maps Aura 2.9.0 test APK (no OTA)' && git push)
