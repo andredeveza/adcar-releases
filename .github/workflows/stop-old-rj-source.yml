@@ -1,0 +1,16 @@
+name: Stop superseded regional-map source download
+on:
+  push:
+    paths: ['.github/workflows/stop-old-rj-source.yml']
+permissions:
+  actions: write
+jobs:
+  cancel_old:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel older 823MB pipeline replaced by direct 88MB Rio state extract
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api --method POST repos/${GH_REPO}/actions/runs/41265387840/cancel || true
