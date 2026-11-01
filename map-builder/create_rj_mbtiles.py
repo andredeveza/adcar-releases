@@ -164,7 +164,7 @@ def render(db,z,tx,ty,font,font_city):
             d.text((px+4,py-12),label,font=font_city,fill="#f5f7f8",stroke_width=3,stroke_fill="#111b28")
             d.ellipse((px-2,py-2,px+2,py+2),fill="#f5e3b3")
             previous.append((px,py))
-    if not rows and not (z<=10):return None
+    # Render blank background tiles too: no gaps in rural/offshore regions.
     b=io.BytesIO();im.save(b,format="PNG",compress_level=6,optimize=False)
     return b.getvalue()
 
