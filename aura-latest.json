@@ -1,10 +1,10 @@
 {
-  "versionCode": 15,
-  "versionName": "2.7.0",
+  "versionCode": 16,
+  "versionName": "2.8.0",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.7.0.apk",
-  "sha256": "207385939b3fe3d10bbe0c2788e5c9a3e958843cd596f5f5169f97fbbaf9e8a2",
-  "sizeBytes": 206130,
-  "date": "2026-10-30",
-  "notes": "AD Car Aura 2.7.0: interface refeita no sistema visual \"Aura In-Cabin OS\" (Google Stitch): fontes Space Grotesk e Manrope embutidas, cards escuros, dock inferior com volume, toques de no mínimo 48 px e presets Compacto, Conforto e Extra grande. Painel em 2, 3 ou 4 divisões ou Mapa + 2, com widgets que se compactam em vez de vazar (testado em 1024×600, 800×480 e 1280×720). Mapa arrastável (Leaflet), busca de endereço, rota offline pelo BRouter ou online pelo OSRM, próxima manobra, tempo, distância e chegada. OBD2 pela AD Car Ponte (Wi-Fi do celular, porta 35000) ou Bluetooth, reconexão automática; leituras ausentes aparecem como \"—\" e o GPS não usa mais posição falsa. Atualizador sem DownloadManager, versão lida do sistema e consulta automática ao ligar (só avisa). Margens manuais para barras da central começam em 0. Mesmo pacote e assinatura: instala por cima do 2.6.0 mantendo os dados. Teste no veículo ainda pendente: Ponte com o carro ligado, rádio FM e BRouter."
+  "apk": "AD-Car-Aura-2.8.0.apk",
+  "sha256": "cecf1e90738ae882421ea38b0dd435e81ab0811c8a8576a8a00c47a06c5ed1f7",
+  "sizeBytes": 201695,
+  "date": "2026-10-31",
+  "notes": "AD Car Aura 2.8.0: interface Aura In-Cabin OS para Android 8.1, layouts responsivos com controle de escala, painel com mapa, mídia, velocidade e OBD2, navegação online/MBTiles quando configurada, opções de marca e modelo, ajuste de margens para a barra do Android e integração nativa AD Car. APK com versionCode 16 e mesmo certificado de assinatura do 2.7.0. Recursos dependentes de hardware, permissões, internet, aplicativos externos e AD Car Ponte exigem testes na central."
 }

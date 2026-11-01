@@ -1,0 +1,48 @@
+name: Validar release Android Aura
+on:
+  push:
+    paths:
+      - 'AD-Car-Aura-*.apk'
+      - 'aura-latest.json'
+      - '.github/workflows/validate-aura-android.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar binário, SHA-256, versão e certificado
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,hashlib,zipfile,pathlib
+          manifest=json.loads(pathlib.Path('aura-latest.json').read_text(encoding='utf-8'))
+          assert manifest['versionCode']==16
+          assert manifest['versionName']=='2.8.0'
+          assert manifest['packageName']=='br.com.adcomintegrada.adcar.aura'
+          assert manifest['apk']=='AD-Car-Aura-2.8.0.apk'
+          p=pathlib.Path(manifest['apk'])
+          assert p.is_file(),'APK ausente'
+          assert len(p.read_bytes())==manifest['sizeBytes'],'Tamanho divergente'
+          digest=hashlib.sha256(p.read_bytes()).hexdigest()
+          assert digest==manifest['sha256'],'SHA256 divergente'
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None,'ZIP danificado'
+              names=z.namelist()
+              for req in ('AndroidManifest.xml','classes.dex','assets/index.html','assets/aura.js','assets/aura.css','META-INF/COCKPIT.RSA'):
+                  assert req in names,'Ausente: '+req
+              assert b"var VERSION_UI='2.8.0'" in z.read('assets/aura.js'),'Interface nao corresponde a 2.8.0'
+              assert b'ADNative' in z.read('assets/aura.js'),'Ponte Android nao referenciada'
+          print('ARQUIVO_INTEGRO_2_8_0')
+          print('SHA256='+digest)
+          PY
+          jarsigner -verify AD-Car-Aura-2.8.0.apk | grep 'jar verified'
+          unzip -p AD-Car-Aura-2.8.0.apk META-INF/COCKPIT.RSA > /tmp/aura-new-signer.der
+          unzip -p AD-Car-Aura-2.7.0.apk META-INF/COCKPIT.RSA > /tmp/aura-old-signer.der
+          NEW=$(keytool -printcert -file /tmp/aura-new-signer.der | grep 'SHA256:' | head -1 | sed 's/^[[:space:]]*SHA256:[[:space:]]*//')
+          OLD=$(keytool -printcert -file /tmp/aura-old-signer.der | grep 'SHA256:' | head -1 | sed 's/^[[:space:]]*SHA256:[[:space:]]*//')
+          test "$NEW" = "$OLD"
+          echo 'ASSINATURA_IDENTICA_A_2_7_0'

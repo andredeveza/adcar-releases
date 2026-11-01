@@ -1,26 +1,32 @@
-# AD Car Aura — versões e arquivos
+# AD Car Aura — distribuição oficial
 
-Distribuição do **AD Car Aura**, interface para a central multimídia Android do Jeep Renegade.
+Este repositório distribui o **AD Car Aura** para central multimídia Android, incluindo histórico de versões e manifesto de atualização OTA.
 
-## Versões distintas
+## Versões
 
-| Produto | Versão | Status | Arquivo |
-|---|---:|---|---|
-| AD Car Aura (APK Android) | 2.7.0 | Publicada para central | [AD-Car-Aura-2.7.0.apk](AD-Car-Aura-2.7.0.apk) |
-| AD Car Aura (prévia web) | 2.8.1 | Interface testável; **não é um APK** | [Abrir código web](web/index.html) |
-| AD Car Ponte (Android) | 1.0.0 | Ponte OBD2 separada | [AD-Car-Ponte.apk](AD-Car-Ponte.apk) |
-| AD Car legado (APK) | 2.0.0 | Legado | [AD-Car.apk](AD-Car.apk) |
+| Produto | Versão | Distribuição |
+|---|---|---|
+| **AD Car Aura Android (atual)** | **2.8.0 (versionCode 16)** | [Baixar APK 2.8.0](AD-Car-Aura-2.8.0.apk) |
+| AD Car Aura Android (anterior) | 2.7.0 (versionCode 15) | [Baixar APK 2.7.0](AD-Car-Aura-2.7.0.apk) |
+| AD Car Ponte | 1.0.0 | [Baixar APK Ponte](AD-Car-Ponte.apk) |
+| Prévia da interface web (sem serviços nativos) | 2.8.1 | [web/index.html](web/index.html) |
 
-O manifesto [aura-latest.json](aura-latest.json) aponta **somente** para APKs Android completos e assinados. A prévia 2.8.1 **não altera** o OTA 2.7.0.
+**Atualizador do Aura:** [aura-latest.json](aura-latest.json) → APK **2.8.0**. O manifesto mantém pacote `br.com.adcomintegrada.adcar.aura` e fornece versão, checksum SHA-256 e tamanho do instalador.
 
-## Como testar o visual novo
+## Verificações de release
 
-- Arquivo único: [web/index.html](web/index.html), com HTML, CSS e JS embutidos.
-- Demonstração: [web/demo.html](web/demo.html); mostra dados simulados identificados como demonstração.
-- Instruções, limitações e próximos passos: [web/README.md](web/README.md).
+- O APK 2.8.0 foi analisado em 31/10/2026, e contém `minSdkVersion=26` (Android 8.0) e `targetSdkVersion=32`.
+- O identificador do aplicativo é o mesmo do 2.7.0 e a assinatura digital X.509 é **idêntica** à do APK 2.7.0, confirmada no GitHub Actions.
+- O manifesto foi publicado com SHA-256 e tamanho exatos do arquivo, e a validação automática do repositório confere ambos.
+- **Não foram realizados testes físicos na central.** GPS, media sessions/arte, OBD2, Ponte, permissões, rádio FM, mapas locais, instalação pelo atualizador e UI de sistema precisam de teste em veículo parado.
+- O APK foi compilado externamente e enviado pronto. Nenhuma alteração foi aplicada ao binário assinado.
 
-Para abrir como site, hospede `web/index.html` em HTTPS (por exemplo, GitHub Pages após habilitar Pages nas configurações do repositório). O link GitHub de visualização do código **não** executa o aplicativo.
+### Instalação
 
-## O que falta para o APK 2.8.1
+Com internet na central: abra AD Car Aura → Ajustes → Atualizações → Verificar → Instalar, caso a versão instalada disponibilize esse fluxo. Alternativamente, baixe o [APK 2.8.0](AD-Car-Aura-2.8.0.apk) e instale-o no Android, mantendo o app anterior para preservar dados, e confirme as permissões necessárias.
 
-A versão web não inclui a ponte Java/Kotlin `window.ADNative` nem o serviço nativo Android. Para gerar e publicar um APK instalável é necessário integrar a interface ao projeto Android original, compilar, assinar com a chave de atualização **idêntica** à usada no 2.7.0 e testar mídia, GPS, OBD2, permissão de notificações, áudio e interface na central. Não republicar o manifesto de atualização antes dessas validações.
+Se aparecer erro de instalação, **não desinstale a versão atual imediatamente**: obtenha os detalhes e verifique se o app instalado tem o pacote e assinatura esperados. A assinatura idêntica verificada vale para os APKs 2.7.0 e 2.8.0 no repositório.
+
+### Web de demonstração
+
+O diretório `web/` contém uma prévia experimental 2.8.1, diferente do APK Android 2.8.0. Ela não substitui o APK e não fornece ponte Android `ADNative` quando acessada em navegador convencional.
