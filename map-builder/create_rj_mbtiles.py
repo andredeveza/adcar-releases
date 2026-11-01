@@ -194,7 +194,7 @@ def create(source,destination):
         "type":"baselayer","version":"2026-10-31","format":"png",
         "bounds":f"{WEST},{SOUTH},{EAST},{NORTH}",
         "center":"-43.2,-22.8,10","minzoom":str(MIN_ZOOM),"maxzoom":str(MAX_ZOOM),
-        "attribution":"© OpenStreetMap contributors (ODbL) · Geofabrik extract · rendered for AD Car"
+        "attribution":"© OpenStreetMap contributors (ODbL) · OSM France state extract · rendered for AD Car"
     }
     mb.executemany("INSERT INTO metadata(name,value) VALUES (?,?)",info.items())
     font=label_font(11);font_city=label_font(12)
