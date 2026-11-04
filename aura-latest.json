@@ -1,10 +1,10 @@
 {
-  "versionCode": 37,
-  "versionName": "2.23.0-midia-auto",
+  "versionCode": 38,
+  "versionName": "2.23.1-faixas",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.23.0-midia-auto.apk",
-  "sha256": "e3836084e888243c05ef624f95a11b90f6cf3a3ba862c37023cc686c03c030af",
-  "sizeBytes": 42843289,
+  "apk": "AD-Car-Aura-2.23.1-faixas.apk",
+  "sha256": "47aeb65b9e309ed9d620aa741503a7c3d3cfffa27749f07d344ed63217b2799c",
+  "sizeBytes": 42905270,
   "date": "2026-11-04",
-  "notes": "Midia: tela atualiza na hora (troca de faixa/play/pause). Botoes de apps (Spotify, YouTube...) somem quando ja tem musica tocando; botao Apps reabre. Ao ligar o carro, retoma o ultimo app de musica sozinho (opcao no painel da Midia). Aleatorio/repetir usam o proprio app."
+  "notes": "Proxima/anterior agora comandam direto o app que esta tocando (antes caiam no player da central). Mapa volta sozinho para tela cheia quando ja existe rota ativa, mesmo depois de reabrir/atualizar o Aura."
 }
