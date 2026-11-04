@@ -1,10 +1,10 @@
 {
-  "versionCode": 39,
-  "versionName": "2.24.0-radio",
+  "versionCode": 40,
+  "versionName": "2.25.0-fontes",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.24.0-radio.apk",
-  "sha256": "91326379a4a6f94d3fdb4f779d031160ec07b57db34434004098c6076f60963b",
-  "sizeBytes": 42862611,
+  "apk": "AD-Car-Aura-2.25.0-fontes.apk",
+  "sha256": "b0326d7ed9e2af46eaeefc2e4ae92dd4dd4e86ada6efa12c5c434ed5838b3fb7",
+  "sizeBytes": 42863359,
   "date": "2026-11-04",
-  "notes": "Mapa sempre em tela cheia (faixa fina de botoes; painel so abre na busca ou no botao ...). Radio embutido: botao Radio abre player com Populares do Brasil, Buscar e Favoritas (estrela); proxima/anterior e volante trocam entre favoritas; volta sozinho ao ligar se foi o ultimo som. FM original da central no botao FM."
+  "notes": "Botao Reiniciar (seta circular, no topo das telas e em Ajustes > Atualizacoes): toque 2 vezes e o Aura fecha e abre de novo. Escolher Spotify/YT Music agora da play sem sair do Aura; so abre o app se ele nao acordar sozinho e depois volta pro Aura. Fonte ativa fica destacada."
 }
