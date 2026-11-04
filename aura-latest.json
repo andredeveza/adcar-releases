@@ -1,10 +1,10 @@
 {
-  "versionCode": 40,
-  "versionName": "2.25.0-fontes",
+  "versionCode": 41,
+  "versionName": "2.26.0-capa",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.25.0-fontes.apk",
-  "sha256": "b0326d7ed9e2af46eaeefc2e4ae92dd4dd4e86ada6efa12c5c434ed5838b3fb7",
-  "sizeBytes": 42863359,
+  "apk": "AD-Car-Aura-2.26.0-capa.apk",
+  "sha256": "c6ed16e3d1acccbe21fb2e1960a654370fda5897499b85bc795d292a246b6fa7",
+  "sizeBytes": 42863867,
   "date": "2026-11-04",
-  "notes": "Botao Reiniciar (seta circular, no topo das telas e em Ajustes > Atualizacoes): toque 2 vezes e o Aura fecha e abre de novo. Escolher Spotify/YT Music agora da play sem sair do Aura; so abre o app se ele nao acordar sozinho e depois volta pro Aura. Fonte ativa fica destacada."
+  "notes": "Painel: o card de musica ao lado do mapa virou poster - a capa ocupa o card inteiro, com titulo, progresso e botoes grandes por cima. Coluna da midia um pouco mais larga."
 }
