@@ -1,10 +1,10 @@
 {
-  "versionCode": 16,
-  "versionName": "2.8.0",
+  "versionCode": 35,
+  "versionName": "2.21.0-rota-tela-cheia",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.8.0.apk",
-  "sha256": "cecf1e90738ae882421ea38b0dd435e81ab0811c8a8576a8a00c47a06c5ed1f7",
-  "sizeBytes": 201695,
-  "date": "2026-10-31",
-  "notes": "AD Car Aura 2.8.0: interface Aura In-Cabin OS para Android 8.1, layouts responsivos com controle de escala, painel com mapa, mídia, velocidade e OBD2, navegação online/MBTiles quando configurada, opções de marca e modelo, ajuste de margens para a barra do Android e integração nativa AD Car. APK com versionCode 16 e mesmo certificado de assinatura do 2.7.0. Recursos dependentes de hardware, permissões, internet, aplicativos externos e AD Car Ponte exigem testes na central."
+  "apk": "AD-Car-Aura-2.21.0-rota-tela-cheia.apk",
+  "sha256": "8212949479f1a00ac5d37576c5e3cb4633de01f8bb777b52ef7c7268b1bc34f0",
+  "sizeBytes": 42839913,
+  "date": "2026-11-04",
+  "notes": "AD Car Aura 2.21: mapa e navegação do Google (Navigation SDK) com contador do plano grátis; rota em tela cheia com faixa de botões; tema Automático/Claro/Escuro para o Aura e o mapa; card de mídia com capa grande; tela Mídia com aleatório, repetir, botões do app, volume em onda e barra arrastável; teclado sem espremer a tela; aviso de data errada com correção do GPS (rollover). Mesmo pacote e assinatura: instala por cima mantendo os dados."
 }
