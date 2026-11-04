@@ -1,10 +1,10 @@
 {
-  "versionCode": 36,
-  "versionName": "2.22.0-voz",
+  "versionCode": 37,
+  "versionName": "2.23.0-midia-auto",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.22.0-voz.apk",
-  "sha256": "cea2b5c582ab4f191508eebbfc7eee11835dbfec42bbd77c66a340cc437db775",
-  "sizeBytes": 42840277,
+  "apk": "AD-Car-Aura-2.23.0-midia-auto.apk",
+  "sha256": "e3836084e888243c05ef624f95a11b90f6cf3a3ba862c37023cc686c03c030af",
+  "sizeBytes": 42843289,
   "date": "2026-11-04",
-  "notes": "AD Car Aura 2.22: botão de voz da navegação no mapa (Voz ligada / Só alertas / Muda), também em Ajustes › Navegação; rota em tela cheia; tema Automático/Claro/Escuro; mapa e navegação do Google com contador do plano grátis; mídia com capa grande, aleatório, repetir e volume em onda; aviso de data errada com correção do GPS. Mesmo pacote e assinatura: instala por cima mantendo os dados."
+  "notes": "Midia: tela atualiza na hora (troca de faixa/play/pause). Botoes de apps (Spotify, YouTube...) somem quando ja tem musica tocando; botao Apps reabre. Ao ligar o carro, retoma o ultimo app de musica sozinho (opcao no painel da Midia). Aleatorio/repetir usam o proprio app."
 }
