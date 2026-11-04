@@ -1,10 +1,10 @@
 {
-  "versionCode": 38,
-  "versionName": "2.23.1-faixas",
+  "versionCode": 39,
+  "versionName": "2.24.0-radio",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.23.1-faixas.apk",
-  "sha256": "47aeb65b9e309ed9d620aa741503a7c3d3cfffa27749f07d344ed63217b2799c",
-  "sizeBytes": 42905270,
+  "apk": "AD-Car-Aura-2.24.0-radio.apk",
+  "sha256": "91326379a4a6f94d3fdb4f779d031160ec07b57db34434004098c6076f60963b",
+  "sizeBytes": 42862611,
   "date": "2026-11-04",
-  "notes": "Proxima/anterior agora comandam direto o app que esta tocando (antes caiam no player da central). Mapa volta sozinho para tela cheia quando ja existe rota ativa, mesmo depois de reabrir/atualizar o Aura."
+  "notes": "Mapa sempre em tela cheia (faixa fina de botoes; painel so abre na busca ou no botao ...). Radio embutido: botao Radio abre player com Populares do Brasil, Buscar e Favoritas (estrela); proxima/anterior e volante trocam entre favoritas; volta sozinho ao ligar se foi o ultimo som. FM original da central no botao FM."
 }
