@@ -1,10 +1,10 @@
 {
-  "versionCode": 41,
-  "versionName": "2.26.0-capa",
+  "versionCode": 42,
+  "versionName": "2.27.0-volume",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.26.0-capa.apk",
-  "sha256": "c6ed16e3d1acccbe21fb2e1960a654370fda5897499b85bc795d292a246b6fa7",
-  "sizeBytes": 42863867,
+  "apk": "AD-Car-Aura-2.27.0-volume.apk",
+  "sha256": "29ffb3e2058402b1ba5ad2fd4198805c2a916128c8379ff71869f4831714a2a6",
+  "sizeBytes": 42864847,
   "date": "2026-11-04",
-  "notes": "Painel: o card de musica ao lado do mapa virou poster - a capa ocupa o card inteiro, com titulo, progresso e botoes grandes por cima. Coluna da midia um pouco mais larga."
+  "notes": "Volume: a central usa volume proprio (numero na barra de cima), que ignorava o Aura. Agora a onda e os botoes - / + mandam a tecla de volume. Se nao funcionar, troque o modo em Midia > ... > Controle do volume e teste."
 }
