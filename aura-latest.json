@@ -1,10 +1,10 @@
 {
-  "versionCode": 35,
-  "versionName": "2.21.0-rota-tela-cheia",
+  "versionCode": 36,
+  "versionName": "2.22.0-voz",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.21.0-rota-tela-cheia.apk",
-  "sha256": "8212949479f1a00ac5d37576c5e3cb4633de01f8bb777b52ef7c7268b1bc34f0",
-  "sizeBytes": 42839913,
+  "apk": "AD-Car-Aura-2.22.0-voz.apk",
+  "sha256": "cea2b5c582ab4f191508eebbfc7eee11835dbfec42bbd77c66a340cc437db775",
+  "sizeBytes": 42840277,
   "date": "2026-11-04",
-  "notes": "AD Car Aura 2.21: mapa e navegação do Google (Navigation SDK) com contador do plano grátis; rota em tela cheia com faixa de botões; tema Automático/Claro/Escuro para o Aura e o mapa; card de mídia com capa grande; tela Mídia com aleatório, repetir, botões do app, volume em onda e barra arrastável; teclado sem espremer a tela; aviso de data errada com correção do GPS (rollover). Mesmo pacote e assinatura: instala por cima mantendo os dados."
+  "notes": "AD Car Aura 2.22: botão de voz da navegação no mapa (Voz ligada / Só alertas / Muda), também em Ajustes › Navegação; rota em tela cheia; tema Automático/Claro/Escuro; mapa e navegação do Google com contador do plano grátis; mídia com capa grande, aleatório, repetir e volume em onda; aviso de data errada com correção do GPS. Mesmo pacote e assinatura: instala por cima mantendo os dados."
 }
