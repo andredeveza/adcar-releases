@@ -1,10 +1,10 @@
 {
-  "versionCode": 42,
-  "versionName": "2.27.0-volume",
+  "versionCode": 44,
+  "versionName": "2.28.0-midia",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.27.0-volume.apk",
-  "sha256": "29ffb3e2058402b1ba5ad2fd4198805c2a916128c8379ff71869f4831714a2a6",
-  "sizeBytes": 42864847,
-  "date": "2026-11-04",
-  "notes": "Volume: a central usa volume proprio (numero na barra de cima), que ignorava o Aura. Agora a onda e os botoes - / + mandam a tecla de volume. Se nao funcionar, troque o modo em Midia > ... > Controle do volume e teste."
+  "apk": "AD-Car-Aura-2.28.0-midia.apk",
+  "sha256": "f4900b32d885dc22f820ce84ef443c53ae7c074fdf0c02a2eabed621d7474ae4",
+  "sizeBytes": 42885908,
+  "date": "2026-11-06",
+  "notes": "Base da auditoria 2.28 RC1 (seguranca, OBD, atualizador, rotulos no menu) + central de midia nova: o Aura comanda Spotify, YT Music e outros players sem abrir o app (mesmo canal do Android Auto), um player por vez, fontes com icone do app, biblioteca dentro do Aura quando o app libera. Ao ligar o carro: uma tentativa so, sem abrir app e sem acordar o player da central. Toques duplos no play nao viram play+pausa."
 }
