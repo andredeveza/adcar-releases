@@ -1,10 +1,10 @@
 {
-  "versionCode": 46,
-  "versionName": "2.30.0-destinos",
+  "versionCode": 47,
+  "versionName": "2.31.0-widgets",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.30.0-destinos.apk",
-  "sha256": "f9a355075e9f13b2b25446abd3db136e717fdb0605c0693ff7dabb302b7c0283",
-  "sizeBytes": 42933960,
+  "apk": "AD-Car-Aura-2.31.0-widgets.apk",
+  "sha256": "65bd23e5a118a7ef0b2ae7eb237b61cd819f358f3bd9b0af250507745912419d",
+  "sizeBytes": 42939309,
   "date": "2026-11-07",
-  "notes": "Destinos prontos no mapa: Casa (R. Djanira, 140 - Samambaia), Trabalho (Av. Jornalista Tim Lopes, 255 - Barra), Academia (Athletic Club - R. Manuel Muniz Falcao, 80), Escola (R. Raul de Leoni - Centro) e Interesses (Quinta do Lago - Moura Brasil). Toque no botao e a rota sai direto. Novo icone do AD Car Aura."
+  "notes": "Widgets novos no painel (Ajustes > Tela inicial, escolha em cada espaco): Destinos (Casa, Trabalho, Academia, Escola, Interesses), Ate em casa (tempo estimado), Agenda (proximo compromisso), Combustivel (tanque e consumo pelo OBD) e Widget de outro app (qualquer widget do Android da central). Clima mostra tambem o tempo no destino durante a rota."
 }
