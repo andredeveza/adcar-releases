@@ -1,10 +1,10 @@
 {
-  "versionCode": 45,
-  "versionName": "2.29.0-tv",
+  "versionCode": 46,
+  "versionName": "2.30.0-destinos",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.29.0-tv.apk",
-  "sha256": "fb823b33ae02e733da8184e26f4ea395a022787d2809dedcd4eccf890be3d5c7",
-  "sizeBytes": 42903748,
-  "date": "2026-11-06",
-  "notes": "TV ao vivo com player proprio: toque no canal e o video abre direto, sem navegador e sem pop-ups. Botoes grandes: canal anterior, play/pausa, proximo canal e fechar. 13 canais oficiais (SBT, SBT News, Record News, Band Jornalismo, CNN Brasil, Jovem Pan News, TV Brasil, TV Senado, CanalGov, STF, TV Aparecida, Cancao Nova...) com miniatura do que esta passando; canais fora do ar vao para o fim e sao pulados. So com o carro parado."
+  "apk": "AD-Car-Aura-2.30.0-destinos.apk",
+  "sha256": "f9a355075e9f13b2b25446abd3db136e717fdb0605c0693ff7dabb302b7c0283",
+  "sizeBytes": 42933960,
+  "date": "2026-11-07",
+  "notes": "Destinos prontos no mapa: Casa (R. Djanira, 140 - Samambaia), Trabalho (Av. Jornalista Tim Lopes, 255 - Barra), Academia (Athletic Club - R. Manuel Muniz Falcao, 80), Escola (R. Raul de Leoni - Centro) e Interesses (Quinta do Lago - Moura Brasil). Toque no botao e a rota sai direto. Novo icone do AD Car Aura."
 }
