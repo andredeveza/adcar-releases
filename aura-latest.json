@@ -1,10 +1,10 @@
 {
-  "versionCode": 48,
-  "versionName": "2.31.1-widgets",
+  "versionCode": 49,
+  "versionName": "2.32.0-telas",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.31.1-widgets.apk",
-  "sha256": "0b60615e3414262aeee2c12acfa6cd65cde05919f9b65e3a05caeeadf8e962b7",
-  "sizeBytes": 42939937,
+  "apk": "AD-Car-Aura-2.32.0-telas.apk",
+  "sha256": "6de7c5f145662b76a65cee6ed104d86121fef2e57ee69942f9b72aeb8b8842a1",
+  "sizeBytes": 42941845,
   "date": "2026-11-07",
-  "notes": "Widgets de outros apps: busca por nome na lista, todos os apps com widget aparecem (Spotify, clima, relogio...), widget desenhado corretamente e configuracao do app aberta pelo Android. Clima do Aura funciona mesmo sem GPS (usa a Casa) e atualiza a cada 15 min."
+  "notes": "Telas prontas: Navegacao, Cidade, Estrada, Dia a dia, Musica, Produtividade e Motor, mais telas salvas por voce. Toque em Painel quando ja estiver no painel para trocar, ou em Ajustes > Tela inicial. Widgets de outros apps agora se ajustam ao espaco (Auto) e tem zoom A- / A+; cada tela pronta guarda o seu widget."
 }
