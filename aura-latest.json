@@ -1,10 +1,10 @@
 {
-  "versionCode": 47,
-  "versionName": "2.31.0-widgets",
+  "versionCode": 48,
+  "versionName": "2.31.1-widgets",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.31.0-widgets.apk",
-  "sha256": "65bd23e5a118a7ef0b2ae7eb237b61cd819f358f3bd9b0af250507745912419d",
-  "sizeBytes": 42939309,
+  "apk": "AD-Car-Aura-2.31.1-widgets.apk",
+  "sha256": "0b60615e3414262aeee2c12acfa6cd65cde05919f9b65e3a05caeeadf8e962b7",
+  "sizeBytes": 42939937,
   "date": "2026-11-07",
-  "notes": "Widgets novos no painel (Ajustes > Tela inicial, escolha em cada espaco): Destinos (Casa, Trabalho, Academia, Escola, Interesses), Ate em casa (tempo estimado), Agenda (proximo compromisso), Combustivel (tanque e consumo pelo OBD) e Widget de outro app (qualquer widget do Android da central). Clima mostra tambem o tempo no destino durante a rota."
+  "notes": "Widgets de outros apps: busca por nome na lista, todos os apps com widget aparecem (Spotify, clima, relogio...), widget desenhado corretamente e configuracao do app aberta pelo Android. Clima do Aura funciona mesmo sem GPS (usa a Casa) e atualiza a cada 15 min."
 }
