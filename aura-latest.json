@@ -1,10 +1,10 @@
 {
-  "versionCode": 49,
-  "versionName": "2.32.0-telas",
+  "versionCode": 51,
+  "versionName": "2.34.0-mapa",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.32.0-telas.apk",
-  "sha256": "6de7c5f145662b76a65cee6ed104d86121fef2e57ee69942f9b72aeb8b8842a1",
-  "sizeBytes": 42941845,
-  "date": "2026-11-07",
-  "notes": "Telas prontas: Navegacao, Cidade, Estrada, Dia a dia, Musica, Produtividade e Motor, mais telas salvas por voce. Toque em Painel quando ja estiver no painel para trocar, ou em Ajustes > Tela inicial. Widgets de outros apps agora se ajustam ao espaco (Auto) e tem zoom A- / A+; cada tela pronta guarda o seu widget."
+  "apk": "AD-Car-Aura-2.34.0-mapa.apk",
+  "sha256": "bbef35dfbdd2eb33dc24824676663959884a32c72ecb0568d71631ddc332a851",
+  "sizeBytes": 42977205,
+  "date": "2026-11-09",
+  "notes": "Mapa: tudo em portugues do Brasil (setas, \"em direcao a\", recalculando e voz), faixa lateral mais larga com nomes nos botoes (Buscar, Destinos, Centralizar, Voz, Tema / Painel, Visao geral, Destino, Encerrar), painel com botoes maiores e destinos em blocos. Inclui a 2.33: modo leve para a central, painel do mapa que fecha sozinho e com Voltar, escolha do Bluetooth ao ligar, capa do Spotify e widgets no Android 8."
 }
