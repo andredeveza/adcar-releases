@@ -1,10 +1,10 @@
 {
-  "versionCode": 51,
-  "versionName": "2.34.0-mapa",
+  "versionCode": 52,
+  "versionName": "2.35.0-partida",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.34.0-mapa.apk",
-  "sha256": "bbef35dfbdd2eb33dc24824676663959884a32c72ecb0568d71631ddc332a851",
-  "sizeBytes": 42977205,
+  "apk": "AD-Car-Aura-2.35.0-partida.apk",
+  "sha256": "138b58f04da5143fe25afba9914d1bb74dd4c17bc5432d39d2bfe1dc7ba68903",
+  "sizeBytes": 42977449,
   "date": "2026-11-09",
-  "notes": "Mapa: tudo em portugues do Brasil (setas, \"em direcao a\", recalculando e voz), faixa lateral mais larga com nomes nos botoes (Buscar, Destinos, Centralizar, Voz, Tema / Painel, Visao geral, Destino, Encerrar), painel com botoes maiores e destinos em blocos. Inclui a 2.33: modo leve para a central, painel do mapa que fecha sozinho e com Voltar, escolha do Bluetooth ao ligar, capa do Spotify e widgets no Android 8."
+  "notes": "Musica ao ligar o carro, de vez: o Aura entende cada partida (tambem quando a central so dorme e acorda), segura o Bluetooth do celular por 90 s, espera a internet do roteador do celular e so entao da play no ultimo app da central, sem abrir a tela dele. O andamento aparece em Midia > ... > Ao ligar o carro."
 }
