@@ -1,10 +1,10 @@
 {
-  "versionCode": 52,
-  "versionName": "2.35.0-partida",
+  "versionCode": 53,
+  "versionName": "2.36.0-sinal",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.35.0-partida.apk",
-  "sha256": "138b58f04da5143fe25afba9914d1bb74dd4c17bc5432d39d2bfe1dc7ba68903",
-  "sizeBytes": 42977449,
-  "date": "2026-11-09",
-  "notes": "Musica ao ligar o carro, de vez: o Aura entende cada partida (tambem quando a central so dorme e acorda), segura o Bluetooth do celular por 90 s, espera a internet do roteador do celular e so entao da play no ultimo app da central, sem abrir a tela dele. O andamento aparece em Midia > ... > Ao ligar o carro."
+  "apk": "AD-Car-Aura-2.36.0-sinal.apk",
+  "sha256": "318051939591fbef79b3532b4b2c4f0d036a70ca438423efb3a338c1e126bfd6",
+  "sizeBytes": 45371305,
+  "date": "2026-11-14",
+  "notes": "Mapa: em rota, a seta do carro nao some mais da tela - o mapa volta a seguir o carro sozinho (depois de queda de sinal, troca de tela ou 10 s depois de arrastar com o dedo). Sem internet, tocar em um destino abre a rota no mapa offline (Organic Maps), se instalado. Radio sem cortes: toca com reserva (padrao 30 s, ajustavel 15/30/60/90 s no player de radio), continua tocando quando o sinal cai e reconecta sozinha por ate 5 minutos."
 }
