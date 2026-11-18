@@ -1,10 +1,10 @@
 {
-  "versionCode": 54,
-  "versionName": "2.37.0-waze",
+  "versionCode": 55,
+  "versionName": "2.37.1-waze",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.37.0-waze.apk",
-  "sha256": "4bbb471b93cad7f8d288392ff5b1aa15265cc46af252478841a1aadcffa49de9",
-  "sizeBytes": 45371913,
+  "apk": "AD-Car-Aura-2.37.1-waze.apk",
+  "sha256": "b59f013708350ff2d1e44b641c6aa9adc411eb74f710a046a0bde1716434d2bb",
+  "sizeBytes": 45372101,
   "date": "2026-11-18",
-  "notes": "Waze: botoes \"Ir pelo Waze\" para Casa, Trabalho, Academia, Escola e Interesses - no painel do Mapa (Destinos) e como widget \"Waze\" nas telas. A rota abre direto no app do Waze ja navegando; se havia rota do Google ativa, ela e encerrada para nao falar em dobro. Sem Waze instalado, o Aura avisa para instalar pela Central de Downloads (a partir da 5.12 o Waze exige Android 10; use uma versao \"Android 8.0+\")."
+  "notes": "Waze: corrigidos os botoes \"Ir pelo Waze\" no painel do Mapa (textos sobrepostos). Agora ficam em blocos grandes, como os destinos do Google."
 }
