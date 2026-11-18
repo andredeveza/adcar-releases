@@ -1,10 +1,10 @@
 {
-  "versionCode": 53,
-  "versionName": "2.36.0-sinal",
+  "versionCode": 54,
+  "versionName": "2.37.0-waze",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.36.0-sinal.apk",
-  "sha256": "318051939591fbef79b3532b4b2c4f0d036a70ca438423efb3a338c1e126bfd6",
-  "sizeBytes": 45371305,
-  "date": "2026-11-14",
-  "notes": "Mapa: em rota, a seta do carro nao some mais da tela - o mapa volta a seguir o carro sozinho (depois de queda de sinal, troca de tela ou 10 s depois de arrastar com o dedo). Sem internet, tocar em um destino abre a rota no mapa offline (Organic Maps), se instalado. Radio sem cortes: toca com reserva (padrao 30 s, ajustavel 15/30/60/90 s no player de radio), continua tocando quando o sinal cai e reconecta sozinha por ate 5 minutos."
+  "apk": "AD-Car-Aura-2.37.0-waze.apk",
+  "sha256": "4bbb471b93cad7f8d288392ff5b1aa15265cc46af252478841a1aadcffa49de9",
+  "sizeBytes": 45371913,
+  "date": "2026-11-18",
+  "notes": "Waze: botoes \"Ir pelo Waze\" para Casa, Trabalho, Academia, Escola e Interesses - no painel do Mapa (Destinos) e como widget \"Waze\" nas telas. A rota abre direto no app do Waze ja navegando; se havia rota do Google ativa, ela e encerrada para nao falar em dobro. Sem Waze instalado, o Aura avisa para instalar pela Central de Downloads (a partir da 5.12 o Waze exige Android 10; use uma versao \"Android 8.0+\")."
 }
