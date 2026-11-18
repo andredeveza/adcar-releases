@@ -1,10 +1,10 @@
 {
-  "versionCode": 55,
-  "versionName": "2.37.1-waze",
+  "versionCode": 56,
+  "versionName": "2.37.2-waze",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.37.1-waze.apk",
-  "sha256": "b59f013708350ff2d1e44b641c6aa9adc411eb74f710a046a0bde1716434d2bb",
-  "sizeBytes": 45372101,
+  "apk": "AD-Car-Aura-2.37.2-waze.apk",
+  "sha256": "ede050de29088731a150aac4796d23e48471a977ca62412cb77131c1dc078b7a",
+  "sizeBytes": 45372341,
   "date": "2026-11-18",
-  "notes": "Waze: corrigidos os botoes \"Ir pelo Waze\" no painel do Mapa (textos sobrepostos). Agora ficam em blocos grandes, como os destinos do Google."
+  "notes": "Central de Downloads: botao \"Baixar no site (Android 8)\" no Waze. Abre no navegador da central a lista de versoes do Waze que rodam no Android 8; baixe a mais nova sem \"beta\" (arm64-v8a + arm-v7a) e instale pela notificacao do download."
 }
