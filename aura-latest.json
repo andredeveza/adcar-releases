@@ -1,10 +1,10 @@
 {
-  "versionCode": 56,
-  "versionName": "2.37.2-waze",
+  "versionCode": 58,
+  "versionName": "2.39.0-antena1",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.37.2-waze.apk",
-  "sha256": "ede050de29088731a150aac4796d23e48471a977ca62412cb77131c1dc078b7a",
-  "sizeBytes": 45372341,
-  "date": "2026-11-18",
-  "notes": "Central de Downloads: botao \"Baixar no site (Android 8)\" no Waze. Abre no navegador da central a lista de versoes do Waze que rodam no Android 8; baixe a mais nova sem \"beta\" (arm64-v8a + arm-v7a) e instale pela notificacao do download."
+  "apk": "AD-Car-Aura-2.39.0-antena1.apk",
+  "sha256": "33f14e3d7b39324b652a09f802a2d59317400d5c792999069dafd8680d86f719",
+  "sizeBytes": 45392953,
+  "date": "2026-11-20",
+  "notes": "Ao ligar o carro: toca a Antena 1 Sao Paulo sozinha (espera a internet do celular o tempo que precisar), com reserva de som de 30 s. Radio online nao desiste mais: sem sinal continua tentando e troca para o endereco reserva da estacao. Fontes de audio: so Spotify, YouTube Music, Radio online e Radio FM da central. Inclui a 2.38: botao Playlists do Spotify dentro do Aura."
 }
