@@ -1,10 +1,10 @@
 {
-  "versionCode": 58,
-  "versionName": "2.39.0-antena1",
+  "versionCode": 59,
+  "versionName": "2.40.0-mapa3d",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.39.0-antena1.apk",
-  "sha256": "33f14e3d7b39324b652a09f802a2d59317400d5c792999069dafd8680d86f719",
-  "sizeBytes": 45392953,
-  "date": "2026-11-20",
-  "notes": "Ao ligar o carro: toca a Antena 1 Sao Paulo sozinha (espera a internet do celular o tempo que precisar), com reserva de som de 30 s. Radio online nao desiste mais: sem sinal continua tentando e troca para o endereco reserva da estacao. Fontes de audio: so Spotify, YouTube Music, Radio online e Radio FM da central. Inclui a 2.38: botao Playlists do Spotify dentro do Aura."
+  "apk": "AD-Car-Aura-2.40.0-mapa3d.apk",
+  "sha256": "4447be86a2793b430fee1f74f2e78d71a185b1305810134b01ec11a0bc07427d",
+  "sizeBytes": 45392965,
+  "date": "2026-11-23",
+  "notes": "Mapa sempre em 3D: com ou sem rota, o mapa fica inclinado seguindo o carro. Se ficar reto (de cima) ou longe do carro, volta sozinho em ate 4 s. Arrastar o mapa com o dedo segura 8 s; o botao Visao geral segura 25 s; Centralizar volta na hora."
 }
