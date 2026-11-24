@@ -1,10 +1,10 @@
 {
-  "versionCode": 59,
-  "versionName": "2.40.0-mapa3d",
+  "versionCode": 60,
+  "versionName": "2.41.0-nav8",
   "packageName": "br.com.adcomintegrada.adcar.aura",
-  "apk": "AD-Car-Aura-2.40.0-mapa3d.apk",
-  "sha256": "4447be86a2793b430fee1f74f2e78d71a185b1305810134b01ec11a0bc07427d",
-  "sizeBytes": 45392965,
-  "date": "2026-11-23",
-  "notes": "Mapa sempre em 3D: com ou sem rota, o mapa fica inclinado seguindo o carro. Se ficar reto (de cima) ou longe do carro, volta sozinho em ate 4 s. Arrastar o mapa com o dedo segura 8 s; o botao Visao geral segura 25 s; Centralizar volta na hora."
+  "apk": "AD-Car-Aura-2.41.0-nav8.apk",
+  "sha256": "3129acd4c945bea652516621c4b6eda8e535d12fe43a47cc7ca70bc6d9181042",
+  "sizeBytes": 49553432,
+  "date": "2026-11-24",
+  "notes": "Mapa: Navigation SDK do Google atualizado para a 8.1.0 (a mais nova). Durante a rota o trecho a frente ja vai sendo baixado (ajuda em queda de sinal na serra). Aviso claro quando o Google demora para calcular a rota. Na primeira abertura o Google mostra de novo o aviso da Navegacao: toque em OK com o carro parado."
 }
